@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+  <record id="action_open_festivals" model="ir.actions.act_window">
+    <field name="name">Festivals</field>
+    <field name="res_model">festivals</field>
+    <field name="view_mode">tree,form</field>
+  </record>
+
+  <record id="action_open_places" model="ir.actions.act_window">
+    <field name="name">Places</field>
+    <field name="res_model">places</field>
+    <field name="view_mode">tree,form</field>
+  </record>
+
+  <record id="action_open_recipes" model="ir.actions.act_window">
+    <field name="name">Recipes</field>
+    <field name="res_model">recipes</field>
+    <field name="view_mode">tree,form</field>
+  </record>
+
+  <record id="action_open_ingredients" model="ir.actions.act_window">
+    <field name="name">Ingredients</field>
+    <field name="res_model">ingredients</field>
+    <field name="view_mode">tree,form</field>
+  </record>
+
+  <record id="action_open_users" model="ir.actions.act_window">
+    <field name="name">Users</field>
+    <field name="res_model">users</field>
+    <field name="view_mode">tree,form</field>
+  </record>
+
+  <record id="action_open_reports" model="ir.actions.act_window">
+    <field name="name">Reports</field>
+    <field name="res_model">reports</field>
+    <field name="view_mode">tree,form</field>
+  </record>
+
+  <menuitem id="main_menu" name="VilaTour" />
+
+  <menuitem id="horizontal_menu1" name="Festivales" parent="main_menu" />
+  <menuitem id="horizontal_menu2" name="Lugares" parent="main_menu" />
+  <menuitem id="horizontal_menu3" name="Recetas" parent="main_menu" />
+  <menuitem id="horizontal_menu4" name="Usuarios" parent="main_menu" />
+
+
+  <!-- Submenús de festivales -->
+  <menuitem id="vertical_menu_festivals1" name="Reseñas" parent="horizontal_menu1" action="action_open_festivals" />
+  <menuitem id="vertical_menu_festivals2" name="Detalles" parent="horizontal_menu1" />
+
+  <menuitem id="vertical_menu_report_festivals" name="Informe" parent="vertical_menu_festivals2" action="action_open_reports" />
+
+  <!-- Submenús de lugares -->
+  <menuitem id="vertical_menu_places1" name="Reseñas" parent="horizontal_menu2" action="action_open_places" />
+  <menuitem id="vertical_menu_places2" name="Detalles" parent="horizontal_menu2" />
+
+  <menuitem id="vertical_menu_report_places" name="Informe" parent="vertical_menu_places2" action="action_open_reports" />
+
+  <!-- Submenús de usuarios -->
+  <menuitem id="vertical_menu_users1" name="Reseñas" parent="horizontal_menu3" action="action_open_users" />
+  <menuitem id="vertical_menu_users2" name="Detalles" parent="horizontal_menu3" />
+
+  <menuitem id="vertical_menu_report_users" name="Informe" parent="vertical_menu_users2" action="action_open_reports" />
+
+  <!-- Submenús de recetas -->
+  <menuitem id="vertical_menu_recipes1" name="Reseñas" parent="horizontal_menu4" action="action_open_recipes" sequence="1"/>
+  <menuitem id="vertical_menu_recipes3" name="Ingredientes" parent="horizontal_menu4" action="action_open_ingredients" sequence="2"/>
+  <menuitem id="vertical_menu_recipes2" name="Detalles" parent="horizontal_menu4" sequence="3"/>
+  
+  <menuitem id="vertical_menu_report_recipes" name="Informe" parent="vertical_menu_recipes2" action="action_open_reports" />
+  
+
+</odoo>

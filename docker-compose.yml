@@ -1,0 +1,25 @@
+version: "3.1"
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+      POSTGRES_DB: VilaTourDB
+    volumes:
+      - C:\docker\VilaTour/odoo-db:/var/lib/postgresql/data
+    networks:
+      - default
+    ports:
+      - 5442:5432
+  web:
+    image: odoo:16
+    links:
+      - db:db
+    ports:
+      - 8073:8069
+    volumes:
+      - C:\docker\VilaTour\odoo-data:/var/lib/odoo
+      - C:\docker\VilaTour\addons:/mnt/extra-addons
+      - C:\docker\VilaTour\config:/etc/odoo
+    entrypoint: "usr/bin/odoo -c /etc/odoo/odoo.conf -u vila_tour"

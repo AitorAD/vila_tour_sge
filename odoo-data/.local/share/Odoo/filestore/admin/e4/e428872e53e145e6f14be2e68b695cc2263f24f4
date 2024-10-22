@@ -1,0 +1,1261 @@
+
+/*************************************************************
+*  Filepath: /web/static/src/legacy/js/promise_extension.js  *
+*  Lines: 23                                                 *
+*************************************************************/
+/**
+ * This file adds a 'guardedCatch' function to the Promise API. This function
+ * has to be used when we don't want to swallow real errors (crashes), like
+ * 'catch' does (i.e. basically all the time in Odoo). We only execute the
+ * 'onRejected' handler if the rejection's reason is not an Error, and we always
+ * return a rejected Promise to let the rejection bubble up (and trigger the
+ * 'unhandledrejection' event).
+ */
+
+(function () {
+    var _catch = Promise.prototype.catch;
+    Promise.prototype.guardedCatch = function (onRejected) {
+        return _catch.call(this, function (reason) {
+            const error = (reason instanceof Error && "cause" in reason) ? reason.cause : reason;
+            if (!error || !(error instanceof Error)) {
+                if (onRejected) {
+                    onRejected.call(this, reason);
+                }
+            }
+            return Promise.reject(reason);
+        });
+    };
+})();
+;
+
+/**************************************
+*  Filepath: /web/static/src/boot.js  *
+*  Lines: 444                         *
+**************************************/
+/**
+ *------------------------------------------------------------------------------
+ * Odoo Web Boostrap Code
+ *------------------------------------------------------------------------------
+ *
+ * Each module can return a promise. In that case, the module is marked as loaded
+ * only when the promise is resolved, and its value is equal to the resolved value.
+ * The module can be rejected (unloaded). This will be logged in the console as info.
+ *
+ * logs:
+ *      Missing dependencies:
+ *          These modules do not appear in the page. It is possible that the
+ *          JavaScript file is not in the page or that the module name is wrong
+ *      Failed modules:
+ *          A javascript error is detected
+ *      Rejected modules:
+ *          The module returns a rejected promise. It (and its dependent modules)
+ *          is not loaded.
+ *      Rejected linked modules:
+ *          Modules who depend on a rejected module
+ *      Non loaded modules:
+ *          Modules who depend on a missing or a failed module
+ *      Debug:
+ *          Non loaded or failed module informations for debugging
+ */
+(function () {
+    "use strict";
+
+    var jobUID = Date.now();
+
+    var jobs = [];
+    var factories = Object.create(null);
+    var jobDeps = [];
+    var jobPromises = [];
+
+    var services = Object.create({});
+
+    var commentRegExp = /(\/\*([\s\S]*?)\*\/|([^:]|^)\/\/(.*)$)/gm;
+    var cjsRequireRegExp = /[^.]\s*require\s*\(\s*["']([^'"\s]+)["']\s*\)/g;
+    if (!globalThis.odoo) {
+        globalThis.odoo = {};
+    }
+    var odoo = globalThis.odoo;
+    var debug = odoo.debug;
+
+    var didLogInfoResolve;
+    var didLogInfoPromise = new Promise(function (resolve) {
+        didLogInfoResolve = resolve;
+    });
+
+    odoo.remainingJobs = jobs;
+    odoo.__DEBUG__ = {
+        didLogInfo: didLogInfoPromise,
+        getDependencies: function (name, transitive) {
+            var deps = name instanceof Array ? name : [name];
+            var changed;
+            do {
+                changed = false;
+                jobDeps.forEach(function (dep) {
+                    if (deps.indexOf(dep.to) >= 0 && deps.indexOf(dep.from) < 0) {
+                        deps.push(dep.from);
+                        changed = true;
+                    }
+                });
+            } while (changed && transitive);
+            return deps;
+        },
+        getDependents: function (name) {
+            return jobDeps
+                .filter(function (dep) {
+                    return dep.from === name;
+                })
+                .map(function (dep) {
+                    return dep.to;
+                });
+        },
+        getWaitedJobs: function () {
+            return jobs
+                .map(function (job) {
+                    return job.name;
+                })
+                .filter(function (item, index, self) {
+                    // uniq
+                    return self.indexOf(item) === index;
+                });
+        },
+        getMissingJobs: function () {
+            var self = this;
+            var waited = this.getWaitedJobs();
+            var missing = [];
+            waited.forEach(function (job) {
+                self.getDependencies(job).forEach(function (job) {
+                    if (!(job in self.services)) {
+                        missing.push(job);
+                    }
+                });
+            });
+            return missing
+                .filter(function (item, index, self) {
+                    return self.indexOf(item) === index;
+                })
+                .filter(function (item) {
+                    return waited.indexOf(item) < 0;
+                })
+                .filter(function (job) {
+                    return !job.error;
+                });
+        },
+        getFailedJobs: function () {
+            return jobs.filter(function (job) {
+                return !!job.error;
+            });
+        },
+        processJobs: function () {
+            var job;
+
+            function processJob(job) {
+                var require = makeRequire(job);
+
+                var jobExec;
+                function onError(e) {
+                    job.error = e;
+                    console.error(`Error while loading ${job.name}: ${e.message}`, e);
+                    Promise.reject(e);
+                }
+                var def = new Promise(function (resolve) {
+                    try {
+                        jobExec = job.factory.call(null, require);
+                        jobs.splice(jobs.indexOf(job), 1);
+                    } catch (e) {
+                        onError(e);
+                    }
+                    if (!job.error) {
+                        Promise.resolve(jobExec)
+                            .then(function (data) {
+                                services[job.name] = data;
+                                resolve();
+                                odoo.__DEBUG__.processJobs();
+                            })
+                            .guardedCatch(function (e) {
+                                job.rejected = e || true;
+                                jobs.push(job);
+                            })
+                            .catch(function (e) {
+                                if (e instanceof Error) {
+                                    onError(e);
+                                }
+                                resolve();
+                            });
+                    } else {
+                        resolve();
+                    }
+                });
+                jobPromises.push(def);
+                def.then(job.resolve);
+            }
+
+            function isReady(job) {
+                return (
+                    !job.error &&
+                    !job.rejected &&
+                    job.factory.deps.every(function (name) {
+                        return name in services;
+                    })
+                );
+            }
+
+            function makeRequire(job) {
+                var deps = {};
+                Object.keys(services)
+                    .filter(function (item) {
+                        return job.deps.indexOf(item) >= 0;
+                    })
+                    .forEach(function (key) {
+                        deps[key] = services[key];
+                    });
+
+                return function require(name) {
+                    if (!(name in deps)) {
+                        console.error("Undefined dependency: ", name);
+                    }
+                    return deps[name];
+                };
+            }
+
+            while (jobs.length) {
+                job = undefined;
+                for (var i = 0; i < jobs.length; i++) {
+                    if (isReady(jobs[i])) {
+                        job = jobs[i];
+                        break;
+                    }
+                }
+                if (!job) {
+                    break;
+                }
+                processJob(job);
+            }
+
+            return services;
+        },
+        factories: factories,
+        services: services,
+    };
+    odoo.define = function () {
+        var args = Array.prototype.slice.call(arguments);
+        var name = typeof args[0] === "string" ? args.shift() : "__odoo_job" + jobUID++;
+        var factory = args[args.length - 1];
+        var deps;
+        if (args[0] instanceof Array) {
+            deps = args[0];
+        } else {
+            deps = [];
+            factory
+                .toString()
+                .replace(commentRegExp, "")
+                .replace(cjsRequireRegExp, function (match, dep) {
+                    deps.push(dep);
+                });
+        }
+
+        if (!(deps instanceof Array)) {
+            throw new Error("Dependencies should be defined by an array", deps);
+        }
+        if (typeof factory !== "function") {
+            throw new Error("Factory should be defined by a function", factory);
+        }
+        if (typeof name !== "string") {
+            throw new Error("Invalid name definition (should be a string", name);
+        }
+        if (name in factories) {
+            throw new Error("Service " + name + " already defined");
+        }
+
+        factory.deps = deps;
+        factories[name] = factory;
+
+        let promiseResolve;
+        const promise = new Promise((resolve) => {
+            promiseResolve = resolve;
+        });
+        jobs.push({
+            name: name,
+            factory: factory,
+            deps: deps,
+            resolve: promiseResolve,
+            promise: promise,
+        });
+
+        deps.forEach(function (dep) {
+            jobDeps.push({ from: dep, to: name });
+        });
+
+        odoo.__DEBUG__.processJobs();
+    };
+    odoo.log = function () {
+        var missing = [];
+        var failed = [];
+        var cycle = null;
+
+        if (jobs.length) {
+            var debugJobs = {};
+            var rejected = [];
+            var rejectedLinked = [];
+            var job;
+            var jobdep;
+
+            for (var k = 0; k < jobs.length; k++) {
+                debugJobs[jobs[k].name] = job = {
+                    dependencies: jobs[k].deps,
+                    dependents: odoo.__DEBUG__.getDependents(jobs[k].name),
+                    name: jobs[k].name,
+                };
+                if (jobs[k].error) {
+                    job.error = jobs[k].error;
+                }
+                if (jobs[k].rejected) {
+                    job.rejected = jobs[k].rejected;
+                    rejected.push(job.name);
+                }
+                var deps = odoo.__DEBUG__.getDependencies(job.name);
+                for (var i = 0; i < deps.length; i++) {
+                    if (job.name !== deps[i] && !(deps[i] in services)) {
+                        jobdep = debugJobs[deps[i]];
+                        if (!jobdep && deps[i] in factories) {
+                            for (var j = 0; j < jobs.length; j++) {
+                                if (jobs[j].name === deps[i]) {
+                                    jobdep = jobs[j];
+                                    break;
+                                }
+                            }
+                        }
+                        if (jobdep && jobdep.rejected) {
+                            if (!job.rejected) {
+                                job.rejected = [];
+                                rejectedLinked.push(job.name);
+                            }
+                            job.rejected.push(deps[i]);
+                        } else {
+                            if (!job.missing) {
+                                job.missing = [];
+                            }
+                            job.missing.push(deps[i]);
+                        }
+                    }
+                }
+            }
+            missing = odoo.__DEBUG__.getMissingJobs();
+            failed = odoo.__DEBUG__.getFailedJobs();
+            var unloaded = Object.keys(debugJobs) // Object.values is not supported
+                .map(function (key) {
+                    return debugJobs[key];
+                })
+                .filter(function (job) {
+                    return job.missing;
+                });
+
+            if (debug || failed.length || unloaded.length) {
+                var log = globalThis.console[
+                    !failed.length || !unloaded.length ? "info" : "error"
+                ].bind(globalThis.console);
+                log(
+                    (failed.length ? "error" : unloaded.length ? "warning" : "info") +
+                        ": Some modules could not be started"
+                );
+                if (missing.length) {
+                    log("Missing dependencies:    ", missing);
+                }
+                if (failed.length) {
+                    log(
+                        "Failed modules:          ",
+                        failed.map(function (fail) {
+                            return fail.name;
+                        })
+                    );
+                }
+                if (rejected.length) {
+                    log("Rejected modules:        ", rejected);
+                }
+                if (rejectedLinked.length) {
+                    log("Rejected linked modules: ", rejectedLinked);
+                }
+                if (unloaded.length) {
+                    cycle = findCycle(unloaded);
+                    if (cycle) {
+                        console.error("Cyclic dependencies: " + cycle);
+                    }
+                    log(
+                        "Non loaded modules:      ",
+                        unloaded.map(function (unload) {
+                            return unload.name;
+                        })
+                    );
+                }
+                if (debug && Object.keys(debugJobs).length) {
+                    log("Debug:                   ", debugJobs);
+                }
+            }
+        }
+        odoo.__DEBUG__.jsModules = {
+            missing: missing,
+            failed: failed.map((mod) => mod.name),
+            unloaded: unloaded ? unloaded.map((mod) => mod.name) : [],
+            cycle,
+        };
+        didLogInfoResolve(true);
+    };
+    /**
+     * Returns a resolved promise when the targeted services are loaded.
+     * If no service is found the promise is used directly.
+     *
+     * @param {string|RegExp} serviceName name of the service to expect
+     *      or regular expression matching the service.
+     * @returns {Promise<number>} resolved when the services ares
+     *      loaded. The value is equal to the number of services found.
+     */
+    odoo.ready = async function (serviceName) {
+        function match(name) {
+            return typeof serviceName === "string" ? name === serviceName : serviceName.test(name);
+        }
+        await Promise.all(jobs.filter((job) => match(job.name)).map((job) => job.promise));
+        return Object.keys(factories).filter(match).length;
+    };
+
+    odoo.runtimeImport = function (moduleName) {
+        if (!(moduleName in services)) {
+            throw new Error(`Service "${moduleName} is not defined or isn't finished loading."`);
+        }
+        return services[moduleName];
+    };
+
+    // Automatically log errors detected when loading modules
+    globalThis.addEventListener("load", function logWhenLoaded() {
+        const len = jobPromises.length;
+        Promise.all(jobPromises).then(function () {
+            if (len === jobPromises.length) {
+                odoo.log();
+            } else {
+                logWhenLoaded();
+            }
+        });
+    });
+
+    /**
+     * Visit the list of jobs, and return the first found cycle, if any
+     *
+     * @param {any[]} jobs
+     * @returns {null | string} either a string describing a cycle, or null
+     */
+    function findCycle(jobs) {
+        // build dependency graph
+        const dependencyGraph = new Map();
+        for (const job of jobs) {
+            dependencyGraph.set(job.name, job.dependencies);
+        }
+
+        // helpers
+        function visitJobs(jobs, visited = new Set()) {
+            for (const job of jobs) {
+                const result = visitJob(job, visited);
+                if (result) {
+                    return result;
+                }
+            }
+            return null;
+        }
+
+        function visitJob(job, visited) {
+            if (visited.has(job)) {
+                const jobs = Array.from(visited).concat([job]);
+                const index = jobs.indexOf(job);
+                return jobs
+                    .slice(index)
+                    .map((j) => `"${j}"`)
+                    .join(" => ");
+            }
+            const deps = dependencyGraph.get(job);
+            return deps ? visitJobs(deps, new Set(visited).add(job)) : null;
+        }
+
+        // visit each root to find cycles
+        return visitJobs(jobs.map((j) => j.name));
+    }
+})();
+;
+
+/*****************************************
+*  Filepath: /web/static/src/session.js  *
+*  Lines: 10                             *
+*****************************************/
+odoo.define('@web/session', async function (require) {
+'use strict';
+let __exports = {};
+/** @odoo-module **/
+
+const session = __exports.session = odoo.__session_info__ || {};
+delete odoo.__session_info__;
+
+return __exports;
+});
+;
+
+/*************************************************************
+*  Filepath: /web/static/src/legacy/js/core/cookie_utils.js  *
+*  Lines: 74                                                 *
+*************************************************************/
+odoo.define('web.utils.cookies', function (require) {
+"use strict";
+
+const utils = {
+    /**
+     * Reads the cookie described by the given name.
+     *
+     * @param {string} cookieName
+     * @returns {string}
+     */
+    getCookie(cookieName) {
+        var cookies = document.cookie ? document.cookie.split('; ') : [];
+        for (var i = 0, l = cookies.length; i < l; i++) {
+            var parts = cookies[i].split('=');
+            var name = parts.shift();
+            var cookie = parts.join('=');
+
+            if (cookieName && cookieName === name) {
+                if (cookie.startsWith('"')) {
+                    if (cookie.includes('\\')){
+                        // see werkzeug _cookie_quote
+                        throw new Error(
+                            `Cookie value contains unknown characters ${cookie}`
+                        )
+                    }
+                    cookie = cookie.slice(1, -1);
+                }
+                return cookie;
+            }
+        }
+        return "";
+    },
+    /**
+     * Check if cookie can be written.
+     *
+     * @param {String} type the type of the cookie
+     * @returns {boolean}
+     */
+    isAllowedCookie(type) {
+        return true;
+    },
+    /**
+     * Creates a cookie.
+     *
+     * @param {string} name the name of the cookie
+     * @param {string} value the value stored in the cookie
+     * @param {integer} ttl time to live of the cookie in millis. -1 to erase the cookie.
+     * @param {string} type the type of the cookies ('required' as default value)
+     */
+    setCookie(name, value, ttl = 31536000, type = 'required') {
+        ttl = utils.isAllowedCookie(type) ? ttl || 24 * 60 * 60 * 365 : -1;
+        document.cookie = [
+            `${name}=${value}`,
+            'path=/',
+            `max-age=${ttl}`,
+            `expires=${new Date(new Date().getTime() + ttl * 1000).toGMTString()}`,
+        ].join(';');
+    },
+    /**
+     * Deletes a cookie.
+     *
+     * @param {string} name the name of the cookie
+     */
+    deleteCookie(name) {
+        document.cookie = [
+            `${name}=`,
+            'path=/',
+            `max-age=-1`,
+            `expires=${new Date(new Date().getTime() - 1000).toGMTString()}`,
+        ].join(';');
+    },
+};
+return utils;
+});
+;
+
+/*****************************************************
+*  Filepath: /web/static/src/legacy/js/core/menu.js  *
+*  Lines: 294                                        *
+*****************************************************/
+odoo.define('@web/legacy/js/core/menu', async function (require) {
+'use strict';
+let __exports = {};
+/** @odoo-module **/
+
+const BREAKPOINT_SIZES = {sm: '575', md: '767', lg: '991', xl: '1199', xxl: '1399'};
+
+/**
+ * Creates an automatic 'more' dropdown-menu for a set of navbar items.
+ *
+ * @param {HTMLElement} el
+ * @param {Object} [options]
+ * @param {string} [options.unfoldable='none'] selector for items that do not
+ * need to be added to dropdown-menu.
+ * @param {float} [options.maxWidth] The max width value that menu content
+ * can take => the overflowing (foldable) items are added in the dropdown-menu.
+ * @param {string} [options.minSize] the menu auto-hide option will be disabled
+ * if viewport is smaller than minSize.
+ * @param {Array} [options.images=[]] images to wait for before menu update.
+ * @param {Array} [options.loadingStyleClasses=[]] list of CSS classes to add while
+ * updating the menu.
+ * @param {function} [options.autoClose] returns a value that represents the
+ * "auto-close" behaviour of the dropdown (e.g. used to prevent auto-closing in
+ * "edit" mode).
+*/
+__exports.initAutoMoreMenu = initAutoMoreMenu; async function initAutoMoreMenu(el, options) {
+    if (!el) {
+        return;
+    }
+    const navbar = el.closest('.navbar');
+    // Get breakpoint related information from the navbar to correctly handle
+    // the "auto-hide" on mobile menu.
+    const [breakpoint = 'md'] = navbar ? Object.keys(BREAKPOINT_SIZES)
+        .filter(suffix => navbar.classList.contains(`navbar-expand-${suffix}`)) : [];
+    const isNoHamburgerMenu = !!navbar && navbar.classList.contains('navbar-expand');
+    let isExtraMenuOpen = false;
+
+    options = Object.assign({
+        unfoldable: 'none',
+        maxWidth: false,
+        // We cannot use `--breakpoint-xx` properties to get values with BS5.
+        minSize: BREAKPOINT_SIZES[breakpoint],
+        images: [],
+        loadingStyleClasses: [],
+        autoClose: () => true,
+    }, options || {});
+
+    const isUserNavbar = el.parentElement.classList.contains('o_main_navbar');
+    const dropdownSubMenuClasses = ['show', 'border-0', 'position-static'];
+    const dropdownToggleClasses = ['h-auto', 'py-2', 'text-secondary'];
+    const autoMarginLeftRegex = /\bm[sx]?(?:-(?:sm|md|lg|xl|xxl))?-auto\b/; // grep: ms-auto mx-auto
+    const autoMarginRightRegex = /\bm[ex]?(?:-(?:sm|md|lg|xl|xxl))?-auto\b/; // grep: me-auto mx-auto
+    var extraItemsToggle = null;
+    const afterFontsloading = new Promise((resolve) => {
+        if (document.fonts) {
+            document.fonts.ready.then(resolve);
+        } else {
+            // IE: don't wait more than max .15s.
+            setTimeout(resolve, 150);
+        }
+    });
+    afterFontsloading.then(_adapt);
+
+    if (options.images.length) {
+        await _afterImagesLoading(options.images);
+        _adapt();
+    }
+
+    let pending = false;
+    let refreshId = null;
+    const onRefresh = () => {
+        if (pending) {
+            refreshId = window.requestAnimationFrame(onRefresh);
+            _adapt();
+            pending = false;
+        } else {
+            refreshId = null;
+        }
+    };
+    // This should throttle the `_adapt()` method to the browser's refresh
+    // rate. The first menu adaptation is always executed immediately.
+    const throttleAdapt = () => {
+        if (refreshId === null) {
+            refreshId = window.requestAnimationFrame(onRefresh);
+            _adapt();
+        } else {
+            pending = true;
+        }
+    };
+
+    window.addEventListener('resize', throttleAdapt);
+
+    el.addEventListener('dom:autoMoreMenu:adapt', _adapt);
+    el.addEventListener('dom:autoMoreMenu:destroy', destroy, {once: true});
+
+    function _restore() {
+        if (!extraItemsToggle) {
+            return;
+        }
+        // Move extra menu items from dropdown-menu to menu element in the same order.
+        [...extraItemsToggle.querySelector('.dropdown-menu').children].forEach((item) => {
+            if (!isUserNavbar) {
+                item.classList.add('nav-item');
+                const itemLink = item.querySelector('.dropdown-item');
+                if (itemLink) {
+                    itemLink.classList.remove('dropdown-item');
+                    itemLink.classList.add('nav-link');
+                }
+            } else {
+                item.classList.remove('dropdown-item');
+                const dropdownSubMenu = item.querySelector('.dropdown-menu');
+                const dropdownSubMenuButton = item.querySelector('.dropdown-toggle');
+                if (dropdownSubMenu) {
+                    dropdownSubMenu.classList.remove(...dropdownSubMenuClasses);
+                }
+                if (dropdownSubMenuButton) {
+                    dropdownSubMenuButton.classList.remove(...dropdownToggleClasses);
+                }
+            }
+            el.insertBefore(item, extraItemsToggle);
+        });
+        extraItemsToggle.remove();
+        extraItemsToggle = null;
+    }
+
+    function _adapt() {
+        el.dispatchEvent(new Event("autoMoreMenu.willAdapt", { bubbles: true }));
+        if (options.loadingStyleClasses.length) {
+            el.classList.add(...options.loadingStyleClasses);
+        }
+        // The goal here is to get the state of the extra menu dropdown if it is
+        // there, which will be restored after the menu adaptation.
+        const extraMenuEl = _getExtraMenuEl();
+        isExtraMenuOpen = extraMenuEl && extraMenuEl.classList.contains("show");
+        _restore();
+
+        // Ignore invisible/toggleable top menu element & small viewports.
+        if (!el.getClientRects().length || el.closest('.show')
+            || (window.matchMedia(`(max-width: ${options.minSize}px)`).matches && !isNoHamburgerMenu)) {
+            return _endAutoMoreMenu();
+        }
+
+        let unfoldableItems = [];
+        const items = [...el.children].filter((node) => {
+            if (node.matches && !node.matches(options.unfoldable)) {
+                return true;
+            }
+            unfoldableItems.push(node);
+            return false;
+        });
+        var nbItems = items.length;
+        var menuItemsWidth = items.reduce((sum, el) => sum + computeFloatOuterWidthWithMargins(el, true, true, false), 0);
+        let maxWidth = 0;
+
+        if (options.maxWidth) {
+            maxWidth = options.maxWidth();
+        }
+        if (!maxWidth) {
+            maxWidth = computeFloatOuterWidthWithMargins(el, true, true, true);
+            var style = window.getComputedStyle(el);
+            maxWidth -= (parseFloat(style.paddingLeft) + parseFloat(style.paddingRight) + parseFloat(style.borderLeftWidth) + parseFloat(style.borderRightWidth));
+            maxWidth -= unfoldableItems.reduce((sum, el) => sum + computeFloatOuterWidthWithMargins(el, true, true, false), 0);
+        }
+        // Ignore if there is no overflow.
+        if (maxWidth - menuItemsWidth >= -0.001) {
+            return _endAutoMoreMenu();
+        }
+
+        const dropdownMenu = _addExtraItemsButton(items[nbItems - 1].nextElementSibling);
+        menuItemsWidth += computeFloatOuterWidthWithMargins(extraItemsToggle, true, true, false);
+        do {
+            menuItemsWidth -= computeFloatOuterWidthWithMargins(items[--nbItems], true, true, false);
+        } while (!(maxWidth - menuItemsWidth >= -0.001) && (nbItems > 0));
+
+        const extraItems = items.slice(nbItems);
+        extraItems.forEach((el) => {
+            if (!isUserNavbar) {
+                const navLink = el.querySelector('.nav-link, a');
+                el.classList.remove('nav-item');
+                if (navLink) {
+                    navLink.classList.remove('nav-link');
+                    navLink.classList.add('dropdown-item');
+                    navLink.classList.toggle('active', el.classList.contains('active'));
+                }
+            } else {
+                const dropdownSubMenu = el.querySelector('.dropdown-menu');
+                const dropdownSubMenuButton = el.querySelector('.dropdown-toggle');
+                el.classList.add('dropdown-item', 'p-0');
+                if (dropdownSubMenu) {
+                    dropdownSubMenu.classList.add(...dropdownSubMenuClasses);
+                }
+                if (dropdownSubMenuButton) {
+                    dropdownSubMenuButton.classList.add(...dropdownToggleClasses);
+                }
+            }
+            dropdownMenu.appendChild(el);
+        });
+        _endAutoMoreMenu();
+    }
+
+    function computeFloatOuterWidthWithMargins(el, mLeft, mRight, considerAutoMargins) {
+        var rect = el.getBoundingClientRect();
+        var style = window.getComputedStyle(el);
+        var outerWidth = rect.right - rect.left;
+        const isRTL = style.direction === 'rtl';
+        if (mLeft !== false && (considerAutoMargins || !(isRTL ? autoMarginRightRegex : autoMarginLeftRegex).test(el.getAttribute('class')))) {
+            outerWidth += parseFloat(style.marginLeft);
+        }
+        if (mRight !== false && (considerAutoMargins || !(isRTL ? autoMarginLeftRegex : autoMarginRightRegex).test(el.getAttribute('class')))) {
+            outerWidth += parseFloat(style.marginRight);
+        }
+        // Would be NaN for invisible elements for example
+        return isNaN(outerWidth) ? 0 : outerWidth;
+    }
+
+    function _addExtraItemsButton(target) {
+        let dropdownMenu = document.createElement('div');
+        extraItemsToggle = dropdownMenu.cloneNode();
+        const extraItemsToggleIcon = document.createElement('i');
+        const extraItemsToggleLink = document.createElement('a');
+
+        dropdownMenu.className = 'dropdown-menu';
+        extraItemsToggle.className = 'nav-item dropdown o_extra_menu_items';
+        extraItemsToggleIcon.className = 'fa fa-plus';
+        Object.entries({
+            role: 'button',
+            href: '#',
+            class: 'nav-link dropdown-toggle o-no-caret',
+            'data-bs-toggle': 'dropdown',
+            'aria-expanded': false,
+        }).forEach(([key, value]) => {
+            extraItemsToggleLink.setAttribute(key, value);
+        });
+
+        extraItemsToggleLink.appendChild(extraItemsToggleIcon);
+        extraItemsToggle.appendChild(extraItemsToggleLink);
+        extraItemsToggle.appendChild(dropdownMenu);
+        el.insertBefore(extraItemsToggle, target);
+        if (!options.autoClose()) {
+            extraItemsToggleLink.setAttribute("data-bs-auto-close", "outside");
+        }
+        return dropdownMenu;
+    }
+
+    function destroy() {
+        _restore();
+        window.removeEventListener('resize', throttleAdapt);
+        el.removeEventListener('dom:autoMoreMenu:adapt', _adapt);
+    }
+
+    function _afterImagesLoading(images) {
+        const defs = images.map((image) => {
+            if (image.complete || !image.getClientRects().length) {
+                return null;
+            }
+            return new Promise(function (resolve, reject) {
+                if (!image.width) {
+                    // The purpose of the 'o_menu_image_placeholder' class is to add a default
+                    // size to non loaded images (on the first update) to prevent flickering.
+                    image.classList.add('o_menu_image_placeholder');
+                }
+                image.addEventListener('load', () => {
+                    image.classList.remove('o_menu_image_placeholder');
+                    resolve();
+                });
+            });
+        });
+        return Promise.all(defs);
+    }
+
+    function _getExtraMenuEl() {
+        return el.querySelector(".o_extra_menu_items .dropdown-toggle");
+    }
+
+    function _endAutoMoreMenu() {
+        const extraMenuEl = _getExtraMenuEl();
+        if (extraMenuEl && isExtraMenuOpen) {
+            extraMenuEl.click();
+        }
+        el.classList.remove(...options.loadingStyleClasses);
+    }
+}
+
+/**
+ * Cleans what has been done by ``initAutoMoreMenu``.
+ *
+ * @param {HTMLElement} el
+ */
+__exports.destroyAutoMoreMenu = destroyAutoMoreMenu; function destroyAutoMoreMenu(el) {
+    el.dispatchEvent(new Event('dom:autoMoreMenu:destroy'));
+}
+
+return __exports;
+});
+;
+
+/************************************************************
+*  Filepath: /web/static/src/legacy/js/core/minimal_dom.js  *
+*  Lines: 145                                               *
+************************************************************/
+odoo.define('@web/legacy/js/core/minimal_dom', async function (require) {
+'use strict';
+let __exports = {};
+/** @odoo-module **/
+
+const DEBOUNCE = __exports.DEBOUNCE = 400;
+const BUTTON_HANDLER_SELECTOR = __exports.BUTTON_HANDLER_SELECTOR = 'a, button, input[type="submit"], input[type="button"], .btn';
+
+/**
+ * Protects a function which is to be used as a handler by preventing its
+ * execution for the duration of a previous call to it (including async
+ * parts of that call).
+ *
+ * Limitation: as the handler is ignored during async actions,
+ * the 'preventDefault' or 'stopPropagation' calls it may want to do
+ * will be ignored too. Using the 'preventDefault' and 'stopPropagation'
+ * arguments solves that problem.
+ *
+ * @param {function} fct
+ *      The function which is to be used as a handler. If a promise
+ *      is returned, it is used to determine when the handler's action is
+ *      finished. Otherwise, the return is used as jQuery uses it.
+ * @param {function|boolean} preventDefault
+ * @param {function|boolean} stopPropagation
+ */
+__exports.makeAsyncHandler = makeAsyncHandler; function makeAsyncHandler(fct, preventDefault, stopPropagation) {
+    // TODO in master, add those as arguments.
+    const stopImmediatePropagation = this && this.__makeAsyncHandler_stopImmediatePropagation;
+
+    let pending = false;
+    function _isLocked() {
+        return pending;
+    }
+    function _lock() {
+        pending = true;
+    }
+    function _unlock() {
+        pending = false;
+    }
+    return function (ev) {
+        if (preventDefault === true || preventDefault && preventDefault()) {
+            ev.preventDefault();
+        }
+        if (stopPropagation === true || stopPropagation && stopPropagation()) {
+            ev.stopPropagation();
+        }
+        if (stopImmediatePropagation === true || stopImmediatePropagation && stopImmediatePropagation()) {
+            ev.stopImmediatePropagation();
+        }
+
+        if (_isLocked()) {
+            // If a previous call to this handler is still pending, ignore
+            // the new call.
+            return;
+        }
+
+        _lock();
+        const result = fct.apply(this, arguments);
+        Promise.resolve(result).then(_unlock).catch(_unlock);
+        return result;
+    };
+}
+
+/**
+ * Creates a debounced version of a function to be used as a button click
+ * handler. Also improves the handler to disable the button for the time of
+ * the debounce and/or the time of the async actions it performs.
+ *
+ * Limitation: if two handlers are put on the same button, the button will
+ * become enabled again once any handler's action finishes (multiple click
+ * handlers should however not be bound to the same button).
+ *
+ * @param {function} fct
+ *      The function which is to be used as a button click handler. If a
+ *      promise is returned, it is used to determine when the button can be
+ *      re-enabled. Otherwise, the return is used as jQuery uses it.
+ */
+__exports.makeButtonHandler = makeButtonHandler; function makeButtonHandler(fct) {
+    // TODO in master, add those as arguments. Even though buttons are probably
+    // blocked by the o_website_btn_loading and related classes, it is not
+    // necessarily true for all event types.
+    const preventDefault = this && this.__makeButtonHandler_preventDefault;
+    const stopPropagation = this && this.__makeButtonHandler_stopPropagation;
+    const stopImmediatePropagation = this && this.__makeButtonHandler_stopImmediatePropagation;
+
+    // Fallback: if the final handler is not bound to a button, at least
+    // make it an async handler (also handles the case where some events
+    // might ignore the disabled state of the button).
+    fct = makeAsyncHandler.call({
+        '__makeAsyncHandler_stopImmediatePropagation': stopImmediatePropagation,
+    }, fct, preventDefault, stopPropagation);
+
+    return function (ev) {
+        const result = fct.apply(this, arguments);
+
+        const buttonEl = ev.target && ev.target.closest && ev.target.closest(BUTTON_HANDLER_SELECTOR);
+        if (!(buttonEl instanceof HTMLElement)) {
+            return result;
+        }
+
+        // Disable the button for the duration of the handler's action
+        // or at least for the duration of the click debounce. This makes
+        // a 'real' debounce creation useless. Also, during the debouncing
+        // part, the button is disabled without any visual effect.
+        buttonEl.classList.add('pe-none');
+        Promise.resolve(DEBOUNCE && new Promise(r => setTimeout(r, DEBOUNCE)))
+            .then(function () {
+                buttonEl.classList.remove('pe-none');
+                const restore = addButtonLoadingEffect(buttonEl);
+                return Promise.resolve(result).then(restore).catch(restore);
+            });
+
+        return result;
+    };
+}
+
+/**
+ * Gives the button a loading effect by disabling it and adding a `fa`
+ * spinner icon.
+ * The existing button `fa` icons will be hidden through css.
+ *
+ * @param {HTMLElement} btnEl - the button to disable/load
+ * @return {function} a callback function that will restore the button
+ *         initial state
+ */
+__exports.addButtonLoadingEffect = addButtonLoadingEffect; function addButtonLoadingEffect(btnEl) {
+    if (!(btnEl instanceof HTMLElement)) {
+        return () => {};
+    }
+    // Note that pe-none is used alongside "disabled" so that the behavior is
+    // the same on links not using the "btn" class -> pointer-events disabled.
+    btnEl.classList.add('o_website_btn_loading', 'disabled', 'pe-none');
+    btnEl.disabled = true;
+    const loaderEl = document.createElement('span');
+    loaderEl.classList.add('fa', 'fa-refresh', 'fa-spin', 'me-2');
+    btnEl.prepend(loaderEl);
+    return () => {
+        btnEl.classList.remove('o_website_btn_loading', 'disabled', 'pe-none');
+        btnEl.disabled = false;
+        loaderEl.remove();
+    };
+}
+
+return __exports;
+});
+;
+
+/*************************************************************
+*  Filepath: /web/static/src/legacy/js/public/lazyloader.js  *
+*  Lines: 188                                                *
+*************************************************************/
+odoo.define('web.public.lazyloader', function (require) {
+'use strict';
+
+const {
+    BUTTON_HANDLER_SELECTOR,
+    makeAsyncHandler,
+    makeButtonHandler,
+} = require('@web/legacy/js/core/minimal_dom');
+
+// Track when all JS files have been lazy loaded. Will allow to unblock the
+// related DOM sections when the whole JS have been loaded and executed.
+let allScriptsLoadedResolve = null;
+const _allScriptsLoaded = new Promise(resolve => {
+    allScriptsLoadedResolve = resolve;
+}).then(stopWaitingLazy);
+
+const retriggeringWaitingProms = [];
+/**
+ * Function to use as an event handler to replay the incoming event after the
+ * whole lazy JS has been loaded. Note that blocking the incoming event is left
+ * up to the caller (i.e. a potential wrapper, @see waitLazy).
+ *
+ * @param {Event} ev
+ * @returns {Promise}
+ */
+async function waitForLazyAndRetrigger(ev) {
+    // Wait for the lazy JS to be loaded before re-triggering the event.
+    const targetEl = ev.target;
+    await _allScriptsLoaded;
+    // Loaded scripts were able to add a delay to wait for before re-triggering
+    // events: we wait for it here.
+    await Promise.all(retriggeringWaitingProms);
+
+    // At the end of the current execution queue, retrigger the event. Note that
+    // the event is reconstructed: this is necessary in some cases, e.g. submit
+    // buttons. Probably because the event was originally defaultPrevented.
+    setTimeout(() => {
+        // Extra safety check: the element might have been removed from the DOM
+        if (targetEl.isConnected) {
+            targetEl.dispatchEvent(new ev.constructor(ev.type, ev));
+        }
+    }, 0);
+}
+
+const loadingEffectHandlers = [];
+/**
+ * Adds the given event listener and saves it for later removal.
+ *
+ * @param {HTMLElement} el
+ * @param {string} type
+ * @param {Function} handler
+ */
+function registerLoadingEffectHandler(el, type, handler) {
+    el.addEventListener(type, handler, {capture: true});
+    loadingEffectHandlers.push({el, type, handler});
+}
+
+let waitingLazy = false;
+
+/**
+ * Automatically adds a loading effect on clicked buttons (that were not marked
+ * with a specific class). Once the whole JS has been loaded, the events will be
+ * triggered again.
+ *
+ * For forms, we automatically prevent submit events (since can be triggered
+ * without click on a button) but we do not retrigger them (could be duplicate
+ * with re-trigger of a click on a submit button otherwise). However, submitting
+ * a form in any way should most of the time simulate a click on the submit
+ * button if any anyway.
+ *
+ * @todo This function used to consider the o_wait_lazy_js class. In master, the
+ * uses of this classes should be removed in XML templates.
+ * @see stopWaitingLazy
+ */
+function waitLazy() {
+    if (waitingLazy) {
+        return;
+    }
+    waitingLazy = true;
+
+    document.body.classList.add('o_lazy_js_waiting');
+
+    // TODO should probably find the wrapwrap another way but in future versions
+    // the element will be gone anyway.
+    const mainEl = document.getElementById('wrapwrap') || document.body;
+    const loadingEffectButtonEls = [...mainEl.querySelectorAll(BUTTON_HANDLER_SELECTOR)]
+        // We target all buttons but...
+        .filter(el => {
+            // ... we allow to disable the effect by adding a specific class if
+            // needed. Note that if some non-lazy loaded code is adding an event
+            // handler on some buttons, it means that if they do not have that
+            // class, they will show a loading effect and not do anything until
+            // lazy JS is loaded anyway. This is not ideal, especially since
+            // this was added as a stable fix/imp, but this is a compromise: on
+            // next page visits, the cache should limit to effect of the lazy
+            // loading anyway.
+            return !el.classList.contains('o_no_wait_lazy_js')
+                // ... we also allow do not consider links with a href which is
+                // not "#". They could be linked to handlers that prevent their
+                // default behavior but we consider that following the link
+                // should still be relevant in that case.
+                && !(el.nodeName === 'A' && el.href && el.getAttribute('href') !== '#');
+        });
+    // Note: this is a limitation/a "risk" to only block and retrigger those
+    // specific event types.
+    const loadingEffectEventTypes = ['mouseover', 'mouseenter', 'mousedown', 'mouseup', 'click', 'mouseout', 'mouseleave'];
+    for (const buttonEl of loadingEffectButtonEls) {
+        for (const eventType of loadingEffectEventTypes) {
+            const loadingEffectHandler = eventType === 'click'
+                ? makeButtonHandler.call({
+                    '__makeButtonHandler_preventDefault': true,
+                    '__makeButtonHandler_stopImmediatePropagation': true,
+                }, waitForLazyAndRetrigger)
+                : makeAsyncHandler.call({
+                    '__makeAsyncHandler_stopImmediatePropagation': true,
+                }, waitForLazyAndRetrigger, true);
+            registerLoadingEffectHandler(buttonEl, eventType, loadingEffectHandler);
+        }
+    }
+
+    for (const formEl of document.querySelectorAll('form:not(.o_no_wait_lazy_js)')) {
+        registerLoadingEffectHandler(formEl, 'submit', ev => {
+            ev.preventDefault();
+            ev.stopImmediatePropagation();
+        });
+    }
+}
+/**
+ * Undo what @see waitLazy did.
+ */
+function stopWaitingLazy() {
+    if (!waitingLazy) {
+        return;
+    }
+    waitingLazy = false;
+
+    document.body.classList.remove('o_lazy_js_waiting');
+
+    for (const { el, type, handler } of loadingEffectHandlers) {
+        el.removeEventListener(type, handler, {capture: true});
+    }
+}
+
+// Start waiting for lazy loading as soon as the DOM is available
+if (document.readyState !== 'loading') {
+    waitLazy();
+} else {
+    document.addEventListener('DOMContentLoaded', function () {
+        waitLazy();
+    });
+}
+
+// As soon as the document is fully loaded, start loading the whole remaining JS
+if (document.readyState === 'complete') {
+    setTimeout(_loadScripts, 0);
+} else {
+    window.addEventListener('load', function () {
+        setTimeout(_loadScripts, 0);
+    });
+}
+
+/**
+ * @param {DOMElement[]} scripts
+ * @param {integer} index
+ */
+function _loadScripts(scripts, index) {
+    if (scripts === undefined) {
+        scripts = document.querySelectorAll('script[data-src]');
+    }
+    if (index === undefined) {
+        index = 0;
+    }
+    if (index >= scripts.length) {
+        allScriptsLoadedResolve();
+        return;
+    }
+    const script = scripts[index];
+    script.addEventListener('load', _loadScripts.bind(this, scripts, index + 1));
+    script.src = script.dataset.src;
+    script.removeAttribute('data-src');
+}
+
+return {
+    loadScripts: _loadScripts,
+    allScriptsLoaded: _allScriptsLoaded,
+    registerPageReadinessDelay: retriggeringWaitingProms.push.bind(retriggeringWaitingProms),
+};
+});
+;
+
+/*******************************************************************
+*  Filepath: /web_editor/static/src/js/frontend/loader_loading.js  *
+*  Lines: 33                                                       *
+*******************************************************************/
+(function () {
+'use strict';
+
+/**
+ * This file makes sure textarea elements with a specific editor class are
+ * tweaked as soon as the DOM is ready so that they appear to be loading.
+ *
+ * They must then be loaded using standard Odoo modules system. In particular,
+ * @see web_editor.loader
+ */
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Standard loop for better browser support
+    var textareaEls = document.querySelectorAll('textarea.o_wysiwyg_loader');
+    for (var i = 0; i < textareaEls.length; i++) {
+        var textarea = textareaEls[i];
+        var wrapper = document.createElement('div');
+        wrapper.classList.add('position-relative', 'o_wysiwyg_textarea_wrapper');
+
+        var loadingElement = document.createElement('div');
+        loadingElement.classList.add('o_wysiwyg_loading');
+        var loadingIcon = document.createElement('i');
+        loadingIcon.classList.add('text-600', 'text-center',
+            'fa', 'fa-circle-o-notch', 'fa-spin', 'fa-2x');
+        loadingElement.appendChild(loadingIcon);
+        wrapper.appendChild(loadingElement);
+
+        textarea.parentNode.insertBefore(wrapper, textarea);
+        wrapper.insertBefore(textarea, loadingElement);
+    }
+});
+
+})();
+
+
+//# sourceMappingURL=/web/assets/192-82c8452/web.assets_frontend_minimal.js.map
