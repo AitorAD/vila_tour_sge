@@ -58,7 +58,7 @@
   <menuitem id="vertical_menu_report_festivals" name="Informe" parent="vertical_menu_festivals3" action="action_open_reports" />
 
   <!-- Submenús de lugares -->
-  <menuitem id="vertical_menu_places1" name="Lugares" parent="horizontal_menu1" action="action_open_places" />
+  <menuitem id="vertical_menu_places1" name="Lugares" parent="horizontal_menu2" action="action_open_places" />
   <menuitem id="vertical_menu_places2" name="Reseñas" parent="horizontal_menu2" action="action_open_reviews" />
   <menuitem id="vertical_menu_places3" name="Detalles" parent="horizontal_menu2" />
 
