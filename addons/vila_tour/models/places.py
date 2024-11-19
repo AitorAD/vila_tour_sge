@@ -7,10 +7,11 @@ class Places(models.Model):
     _name = "places"
 
     name = fields.Char()
+    image = fields.Image(string="Image")
     description = fields.Text()
     creator = fields.Text()
     image_1920 = fields.Binary(string="Image")
-    rating = fields.Integer()
+    average_score = fields.Integer()
     place_category = fields.Selection([
         ('beach', 'Playa'),
         ('cultural_center', 'Centro Cultural'),
@@ -28,7 +29,7 @@ class Places(models.Model):
     ], string="Tipo de Lugar")
     location = fields.Text()
     creation_date = fields.Datetime(string="Fecha de Creación", readonly=True, default=fields.Datetime.now)  # Campo de tipo fecha
-    last_modification = fields.Datetime(string="Última Modificación", readonly=True)  # Campo de tipo fecha y hora
+    last_modification_date = fields.Datetime(string="Última Modificación", readonly=True)  # Campo de tipo fecha y hora
 
     @api.model
     def create(self, vals):

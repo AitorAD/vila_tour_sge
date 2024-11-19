@@ -4,14 +4,17 @@
         <field name="name">vista.formulario.ingredientes</field>
         <field name="model">ingredients</field>
         <field name="arch" type="xml">
-            <sheet>
-                <form string="Formulario de ingredientes" class="oe_form_container" style="margin: auto; max-width: 400px">
+            <form string="Formulario de ingredientes" class="oe_form_container"
+                style="margin: auto; max-width: 400px">
+                <sheet>
                     <group>
-                        <field name="name" placeholder="Nombre del ingrediente" required="1" default_focus="1"/>
-                        <field name="category" string="Categoría" placeholder="Seleccionar categoría" required="1"/>
+                        <field name="name" placeholder="Nombre del ingrediente" required="1"
+                            default_focus="1" />
+                        <field name="category" string="Categoría"
+                            placeholder="Seleccionar categoría" required="1" />
                     </group>
-                </form>
-            </sheet>
+                </sheet>
+            </form>
         </field>
     </record>
 
@@ -20,8 +23,8 @@
         <field name="model">ingredients</field>
         <field name="arch" type="xml">
             <tree string="Lista de Ingredientes">
-                <field name="name"/>
-                <field name="category"/>
+                <field name="name" />
+                <field name="category" />
             </tree>
         </field>
     </record>

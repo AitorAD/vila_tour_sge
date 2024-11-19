@@ -4,44 +4,59 @@
         <field name="name">Vista formulario de recetas</field>
         <field name="model">recipes</field>
         <field name="arch" type="xml">
-            <sheet>
             <form string="Formulario de Recetas" class="oe_form_container" style="margin: auto;">
-                <!-- Imagen de la receta con opciones de previsualización -->
-                <field name="image_1920" widget="image" class="oe_avatar" 
-                            options="{'preview_image': 'image_256', 'size': [256, 256]}"/>
-                
-                <!-- Etiqueta de "Aprobada" -->
-                <widget name="web_ribbon" title="Aprobada" bg_color="bg-success" attrs="{'invisible': [('approved', '=', False)]}"/>
+                <sheet>
+                    <!-- Imagen de la receta con opciones de previsualización -->
+                    <field name="image" widget="image" class="oe_avatar"
+                        options="{'preview_image': 'image_256', 'size': [256, 256]}" />
 
-                <!-- Título y Puntuación de la receta -->
-                <div class="oe_title">
-                    <div class="o_row" style="display: flex; align-items: center;">
-                        <h1 style="display: flex; align-items: center;">
-                            <field name="name" placeholder="Nombre de la receta" required="1" default_focus="1" class="oe_inline"/>
-                            
-                            <!-- Texto "Puntuación" y campo de solo lectura -->
-                            <div style="padding-left: 10px; padding-right: 15px;" class="oe_title">Puntuación:</div>
-                            <field name="rating" readonly="1" class="oe_inline" style="padding-right: 15px;"/>
-                            
-                            <!-- Ícono de estado con tamaño y centrado ajustados -->
-                            <span class="fa fa-circle" attrs="{'invisible': [('rating', '=', False), ('approved', '=', False)]}" style="font-size: 16px;"/>
-                            
-                            <div style="padding-left: 10px; padding-right: 10px;" class="oe_title">Aprobada</div>
-                            <field name="approved" string="Aprobada"/>
-                        </h1>
+                    <!-- Etiqueta de "Aprobada" -->
+                    <widget name="web_ribbon" title="Aprobada" bg_color="bg-success"
+                        attrs="{'invisible': [('approved', '=', False)]}" />
+
+                    <!-- Título y Puntuación de la receta -->
+                    <div class="oe_title">
+                        <div class="o_row" style="display: flex; align-items: center;">
+                            <h1 style="display: flex; align-items: center;">
+                                <field name="name" placeholder="Nombre de la receta" required="1"
+                                    default_focus="1" class="oe_inline" />
+
+                                <!-- Texto "Puntuación" y campo de solo lectura -->
+                                <div style="padding-left: 10px; padding-right: 15px;"
+                                    class="oe_title">Puntuación:</div>
+                                <field name="average_score" readonly="1" class="oe_inline"
+                                    style="padding-right: 15px;" />
+
+                                <!-- Ícono de estado con tamaño y centrado ajustados -->
+                                <span class="fa fa-circle"
+                                    attrs="{'invisible': [('average_score', '=', False), ('approved', '=', False)]}"
+                                    style="font-size: 16px;" />
+
+                                <div style="padding-left: 10px; padding-right: 10px;"
+                                    class="oe_title">Aprobada</div>
+                                <field name="approved" string="Aprobada" />
+                            </h1>
+                        </div>
                     </div>
-                </div>
-
-                <!-- Sección de Descripción y Ingredientes -->
-                <group string="Descripción" style="margin-top: -6px;">
-                    <field name="description" placeholder="Descripción de la receta..."/>
-                    <group>
-                        <field name="ingredients" widget="many2many_tags"/>
+                    
+                    <!-- Sección de Información General -->
+                    <group string="General Information" col="2">
+                        <field name="id" readonly="1" />
+                        <field name="average_score" readonly="1" />
+                        <field name="creation_date" readonly="1" />
+                        <field name="last_modification_date" readonly="1" />
                     </group>
-                </group>
-                
+
+                    <!-- Sección de Descripción y Ingredientes -->
+                    <group string="Descripción" style="margin-top: -6px;">
+                        <field name="description" placeholder="Descripción de la receta..." />
+                        <group>
+                            <field name="ingredients" widget="many2many_tags" />
+                        </group>
+                    </group>
+
+                </sheet>
             </form>
-        </sheet>
         </field>
     </record>
 
@@ -50,10 +65,10 @@
         <field name="model">recipes</field>
         <field name="arch" type="xml">
             <tree string="Lista de Recetas">
-                <field name="image_1920" widget="image" options="{'size': [32, 32]}"/>
-                <field name="name"/>
-                <field name="rating"/>
-                <field name="approved"/>
+                <field name="image" widget="image" options="{'size': [32, 32]}" />
+                <field name="name" />
+                <field name="average_score" />
+                <field name="approved" />
             </tree>
         </field>
     </record>

@@ -4,9 +4,9 @@
         <field name="name">festivals.form</field>
         <field name="model">festivals</field>
         <field name="arch" type="xml">
-            <sheet>
-                <form string="Festival Form" class="oe_form_container"
-                    style="max-width: 850px; margin: auto;">
+            <form string="Festival Form" class="oe_form_container"
+                style="max-width: 850px; margin: auto;">
+                <sheet>
                     <!-- Encabezado del formulario -->
                     <field name="image" widget="image" class="oe_avatar" options="{'size': [256, ]}" />
 
@@ -16,7 +16,7 @@
                                 default_focus="1" />
                         </h1>
                     </div>
-                    
+
 
                     <!-- Sección de Información General -->
                     <group string="General Information" col="2">
@@ -27,7 +27,7 @@
                     </group>
 
                     <!-- Descripción -->
-                    <group string="Description" >
+                    <group string="Description">
                         <field name="description" placeholder="Write a description..." />
                     </group>
 
@@ -38,8 +38,8 @@
                         <field name="latitude" />
                         <field name="longitude" />
                     </group>
-                </form>
-            </sheet>
+                </sheet>
+            </form>
         </field>
     </record>
 
