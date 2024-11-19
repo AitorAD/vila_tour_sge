@@ -28,6 +28,14 @@ class Festivals(models.Model):
     latitude = fields.Float(string="Latitude")
     longitude = fields.Float(string="Longitude")
 
+    creator_id = fields.Many2one(
+        comodel_name='users', 
+        string='Creator',
+        required=True,
+        ondelete='cascade'
+    )
+    
+
     @api.model
     def create(self, vals):
         """

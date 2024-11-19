@@ -34,7 +34,8 @@
                     <!-- Categoría y creador del lugar -->
                     <group string="Detalles" style="margin-top: -6px;">
                         <field name="place_category" />
-                        <field name="creator" />
+                        <field name="creator_id" />
+                        
                     </group>
 
                     <!-- Ubicación del lugar -->

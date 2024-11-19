@@ -9,7 +9,6 @@ class Places(models.Model):
     name = fields.Char()
     image = fields.Image(string="Image")
     description = fields.Text()
-    creator = fields.Text()
     image_1920 = fields.Binary(string="Image")
     average_score = fields.Integer()
     place_category = fields.Selection([
@@ -30,6 +29,13 @@ class Places(models.Model):
     location = fields.Text()
     creation_date = fields.Datetime(string="Fecha de Creación", readonly=True, default=fields.Datetime.now)  # Campo de tipo fecha
     last_modification_date = fields.Datetime(string="Última Modificación", readonly=True)  # Campo de tipo fecha y hora
+    
+    creator_id = fields.Many2one(
+        comodel_name='users', 
+        string='Creator',
+        required=True,
+        ondelete='cascade'
+    )
 
     @api.model
     def create(self, vals):

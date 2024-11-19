@@ -30,6 +30,13 @@ class Recipes(models.Model):
         string="Ingredientes"
     )
 
+    creator_id = fields.Many2one(
+        comodel_name='users', 
+        string='Creator',
+        required=True,
+        ondelete='cascade'
+    )
+
     @api.model
     def create(self, vals):
         """

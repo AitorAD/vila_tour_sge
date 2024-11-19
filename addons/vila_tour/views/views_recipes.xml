@@ -45,6 +45,7 @@
                         <field name="average_score" readonly="1" />
                         <field name="creation_date" readonly="1" />
                         <field name="last_modification_date" readonly="1" />
+                        <field name="creator_id" />
                     </group>
 
                     <!-- Sección de Descripción y Ingredientes -->

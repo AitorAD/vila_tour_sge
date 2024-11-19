@@ -33,6 +33,35 @@
                             <field name="username" required="1" placeholder="Enter a username" />
                         </group>
                     </group>
+
+                    <!-- Tablas de relaciones -->
+                    <notebook>
+                        <page string="Festivals Created">
+                            <field name="festival_ids">
+                                <tree>
+                                    <field name="name" string="Festival Name" />
+                                    <field name="start_date" />
+                                    <field name="end_date" />
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Places Created">
+                            <field name="places_ids">
+                                <tree>
+                                    <field name="name" string="Place Name" />
+                                    <field name="location" />
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Recipes Created">
+                            <field name="recipes_ids">
+                                <tree>
+                                    <field name="name" string="Recipe Name" />
+                                    <field name="ingredients" />
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>
