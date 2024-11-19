@@ -7,7 +7,6 @@ class Places(models.Model):
     _name = "places"
 
     name = fields.Char()
-    id = fields.Integer()
     description = fields.Text()
     creator = fields.Text()
     image_1920 = fields.Binary(string="Image")
