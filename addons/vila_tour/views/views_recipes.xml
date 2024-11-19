@@ -7,8 +7,8 @@
             <sheet>
             <form string="Formulario de Recetas" class="oe_form_container" style="margin: auto;">
                 <!-- Imagen de la receta con opciones de previsualización -->
-                <field name="image_1920" widget="image" class="oe_avatar"
-                       options="{'preview_image': 'image_256', 'size': [256, 256]}"/>
+                <field name="image_1920" widget="image" class="oe_avatar" 
+                            options="{'preview_image': 'image_256', 'size': [256, 256]}"/>
                 
                 <!-- Etiqueta de "Aprobada" -->
                 <widget name="web_ribbon" title="Aprobada" bg_color="bg-success" attrs="{'invisible': [('approved', '=', False)]}"/>
@@ -44,4 +44,18 @@
         </sheet>
         </field>
     </record>
+
+    <record id="view_recipes_tree" model="ir.ui.view">
+        <field name="name">Vista árbol de recetas</field>
+        <field name="model">recipes</field>
+        <field name="arch" type="xml">
+            <tree string="Lista de Recetas">
+                <field name="image_1920" widget="image" options="{'size': [32, 32]}"/>
+                <field name="name"/>
+                <field name="rating"/>
+                <field name="approved"/>
+            </tree>
+        </field>
+    </record>
+
 </odoo>

@@ -24,6 +24,9 @@
     # always loaded
     'data': [
         'views/views.xml',
-        'views/views_recipes.xml'
+        'views/views_ingredient.xml',
+        'views/views_recipes.xml',
+        'views/views_reviews.xml',
+        'views/views_categories.xml',
     ],
 }
