@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_festivals_form" model="ir.ui.view">
+        <field name="name">festivals.form</field>
+        <field name="model">festivals</field>
+        <field name="arch" type="xml">
+            <sheet>
+                <form string="Festival Form" class="oe_form_container"
+                    style="max-width: 850px; margin: auto;">
+                    <!-- Encabezado del formulario -->
+                    <field name="image" widget="image" class="oe_avatar" options="{'size': [256, ]}" />
+
+                    <div class="oe_title" style="display: flex; align-items: center; gap: 20px;">
+                        <h1 style="margin: 0;">
+                            <field name="name" placeholder="Enter festival name" required="1"
+                                default_focus="1" />
+                        </h1>
+                    </div>
+                    
+
+                    <!-- Sección de Información General -->
+                    <group string="General Information" col="2">
+                        <field name="id" readonly="1" />
+                        <field name="average_score" readonly="1" />
+                        <field name="creation_date" readonly="1" />
+                        <field name="last_modification_date" readonly="1" />
+                    </group>
+
+                    <!-- Descripción -->
+                    <group string="Description" >
+                        <field name="description" placeholder="Write a description..." />
+                    </group>
+
+                    <!-- Fechas y Ubicación -->
+                    <group string="Dates and Location" col="2">
+                        <field name="start_date" />
+                        <field name="end_date" />
+                        <field name="latitude" />
+                        <field name="longitude" />
+                    </group>
+                </form>
+            </sheet>
+        </field>
+    </record>
+
+    <record id="view_festivals_tree" model="ir.ui.view">
+        <field name="name">festivals.tree</field>
+        <field name="model">festivals</field>
+        <field name="arch" type="xml">
+            <tree string="Festival List" decoration-danger="end_date &lt; context_today()">
+                <field name="image" widget="image" options="{'size': [32, ]}" />
+                <field name="name" string="Name" />
+                <field name="start_date" string="Start Date" />
+                <field name="end_date" string="End Date" />
+                <field name="average_score" string="Average Score" />
+                <field name="creation_date" string="Created On" />
+                <field name="last_modification_date" string="Last Modified" />
+            </tree>
+        </field>
+    </record>
+</odoo>

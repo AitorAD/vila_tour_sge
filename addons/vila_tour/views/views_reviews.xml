@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista formulario para Reviews -->
+    <record id="view_reviews_form" model="ir.ui.view">
+        <field name="name">Vista formulario de Reviews</field>
+        <field name="model">reviews</field>
+        <field name="arch" type="xml">
+            <form string="Formulario de Reviews" class="oe_form_container" style="max-width: 850px; margin: auto;">
+                <!-- Información del Usuario que hace la reseña -->
+                <group string="Usuario">
+                    <field name="user_id" required="1"/>
+                </group>
+
+                <!-- Información del Artículo que se está reseñando -->
+                <group string="Artículo">
+                    <field name="article_id" required="1"/>
+                </group>
+
+                <!-- Puntuación de la reseña -->
+                <group string="Puntuación">
+                    <field name="rating" required="1" widget="star_rating" options="{'max': 5}" />
+                </group>
+
+                <!-- Comentario de la reseña -->
+                <group string="Comentario">
+                    <field name="comment" placeholder="Escribe tu comentario sobre este artículo..."/>
+                </group>
+
+                <!-- Botón de Aprobación (opcional) -->
+                <widget name="web_ribbon" title="Aprobada" bg_color="bg-success" attrs="{'invisible': [('rating', '=', False)]}"/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista de lista para Reviews -->
+    <record id="view_reviews_tree" model="ir.ui.view">
+        <field name="name">Vista de lista de Reviews</field>
+        <field name="model">reviews</field>
+        <field name="arch" type="xml">
+            <tree string="Lista de Reviews">
+                <field name="user_id"/>
+                <field name="article_id"/>
+                <field name="rating"/>
+                <field name="comment"/>
+            </tree>
+        </field>
+    </record>
+</odoo>

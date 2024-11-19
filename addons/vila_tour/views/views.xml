@@ -25,6 +25,12 @@
     <field name="view_mode">tree,form</field>
   </record>
 
+  <record id="action_open_categories" model="ir.actions.act_window">
+    <field name="name">Categories</field>
+    <field name="res_model">categories</field>
+    <field name="view_mode">tree,form</field>
+  </record>
+
   <record id="action_open_users" model="ir.actions.act_window">
     <field name="name">Users</field>
     <field name="res_model">users</field>
@@ -67,7 +73,10 @@
   <!-- Submenús de recetas -->
   <menuitem id="vertical_menu_recipes1" name="Recetas" parent="horizontal_menu3" action="action_open_recipes" sequence="1"/>
   <menuitem id="vertical_menu_recipes2" name="Reseñas" parent="horizontal_menu3" action="action_open_reviews" sequence="2"/>
-  <menuitem id="vertical_menu_recipes3" name="Ingredientes" parent="horizontal_menu3" action="action_open_ingredients" sequence="3"/>
+  <menuitem id="vertical_menu_recipes3" name="Ingredientes" parent="horizontal_menu3" sequence="4"/>
+
+  <menuitem id="vertical_menu_ingredients" name="Ingredientes" parent="vertical_menu_recipes3" action="action_open_ingredients" sequence="3"/>
+  <menuitem id="vertical_menu_ingredients2" name="Categorías" parent="vertical_menu_recipes3" action="action_open_categories" sequence="3"/>
   <menuitem id="vertical_menu_recipes4" name="Detalles" parent="horizontal_menu3" sequence="4"/>
   
   <menuitem id="vertical_menu_report_recipes" name="Informe" parent="vertical_menu_recipes4" action="action_open_reports" />
