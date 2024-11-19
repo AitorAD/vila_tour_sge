@@ -4,8 +4,8 @@
         <field name="name">Vista formulario de lugares</field>
         <field name="model">places</field>
         <field name="arch" type="xml">
-            <sheet>
-                <form string="Formulario de Lugares" class="oe_form_container" style="margin: auto;">
+            <form string="Formulario de Lugares" class="oe_form_container" style="margin: auto;">
+                <sheet>
                     <!-- Imagen del lugar con opciones de previsualización -->
                     <field name="image_1920" widget="image" class="oe_avatar"
                         options="{'preview_image': 'image_256', 'size': [256, 256]}" />
@@ -20,7 +20,7 @@
                                 <!-- Texto "Puntuación" y campo de solo lectura -->
                                 <div style="padding-left: 10px; padding-right: 15px;"
                                     class="oe_title">Puntuación:</div>
-                                <field name="rating" readonly="1" class="oe_inline"
+                                <field name="average_score" readonly="1" class="oe_inline"
                                     style="padding-right: 15px;" />
                             </h1>
                         </div>
@@ -34,7 +34,8 @@
                     <!-- Categoría y creador del lugar -->
                     <group string="Detalles" style="margin-top: -6px;">
                         <field name="place_category" />
-                        <field name="creator" />
+                        <field name="creator_id" />
+                        
                     </group>
 
                     <!-- Ubicación del lugar -->
@@ -45,11 +46,27 @@
                     <!-- Fechas del lugar -->
                     <group string="Fechas del lugar" style="margin-top: -6px;">
                         <field name="creation_date" readonly="1" colspan="1" />
-                        <field name="last_modification" readonly="1" colspan="1" />
+                        <field name="last_modification_date" readonly="1" colspan="1" />
                     </group>
 
-                </form>
-            </sheet>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_places_tree" model="ir.ui.view">
+        <field name="name">places.tree</field>
+        <field name="model">places</field>
+        <field name="arch" type="xml">
+            <tree string="Place List">
+                <field name="image" widget="image" options="{'size': [32, ]}" />
+                <field name="name" string="Name" />
+                <field name="location" string="Location" />
+                <field name="place_category" string="Category" />
+                <field name="average_score" string="Average Score" />
+                <field name="creation_date" string="Created On" />
+                <field name="last_modification_date" string="Last Modified" />
+            </tree>
         </field>
     </record>
 </odoo>

@@ -23,3 +23,20 @@ class Users (models.Model):
         required=True
     )
     
+    festival_ids = fields.One2many(
+        comodel_name='festivals',
+        inverse_name='creator_id',
+        string='Festivals Created'
+    )
+
+    places_ids = fields.One2many(
+        comodel_name='places',
+        inverse_name='creator_id',
+        string='Places Created'
+    )
+
+    recipes_ids = fields.One2many(
+        comodel_name='recipes',
+        inverse_name='creator_id',
+        string='Recipes Created'
+    )
