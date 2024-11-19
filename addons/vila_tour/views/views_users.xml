@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_users_form" model="ir.ui.view">
+        <field name="name">users.form</field>
+        <field name="model">users</field>
+        <field name="arch" type="xml">
+            <sheet>
+                <form string="User Form" class="oe_form_container"
+                    style="max-width: 850px; margin: auto;">
+                    <!-- Encabezado del formulario -->
+                    <div class="oe_title">
+                        <div class="o_row" style="display: flex; align-items: center; gap: 20px;">
+                            <h1 style="margin: 0;">
+                                <field name="username" placeholder="Username" required="1"
+                                    default_focus="1"
+                                    class="oe_inline" />
+                            </h1>
+                            <field name="profile_picture" widget="image" class="oe_inline"
+                                style="max-height: 80px; max-width: 80px; border-radius: 50%;" />
+                        </div>
+                    </div>
+                    <group>
+                        <!-- Organización del formulario en columnas -->
+                        <group string="Personal Information" col="2">
+                            <field name="name" />
+                            <field name="surname" />
+                            <field name="email" required="1" />
+                            <field name="role" widget="selection" />
+                        </group>
+                        <group string="Account Details" col="2">
+                            <field name="password" password="1"
+                                placeholder="Enter a secure password" />
+                            <field name="username" required="1" placeholder="Enter a username" />
+                        </group>
+                    </group>
+                </form>
+            </sheet>
+
+        </field>
+    </record>
+</odoo>

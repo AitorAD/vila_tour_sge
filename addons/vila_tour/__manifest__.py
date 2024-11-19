@@ -28,6 +28,8 @@
         'views/views_recipes.xml',
         'views/views_reviews.xml',
         'views/views_categories.xml',
-        'views/views_places.xml'
+        'views/views_places.xml',
+        'views/views_festivals.xml',
+        'views/views_users.xml'
     ],
 }
