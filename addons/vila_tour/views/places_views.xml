@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_place_form" model="ir.ui.view">
+        <field name="name">Vista formulario de lugares</field>
+        <field name="model">places</field>
+        <field name="arch" type="xml">
+            <sheet>
+                <form string="Formulario de Lugares" class="oe_form_container" style="margin: auto;">
+                    
+                    <!-- Imagen del lugar con opciones de previsualización -->
+                    <field name="image_1920" widget="image" class="oe_avatar" 
+                           options="{'preview_image': 'image_256', 'size': [256, 256]}"/>
+
+                    <!-- Título y Puntuación del lugar -->
+                    <div class="oe_title">
+                        <div class="o_row" style="display: flex; align-items: center;">
+                            <h1 style="display: flex; align-items: center;">
+                                <field name="name" placeholder="Nombre del Lugar" required="1" 
+                                       default_focus="1" class="oe_inline"/>
+                                
+                                <!-- Texto "Puntuación" y campo de solo lectura -->
+                                <div style="padding-left: 10px; padding-right: 15px;" 
+                                     class="oe_title">Puntuación:</div>
+                                <field name="rating" readonly="1" class="oe_inline" 
+                                       style="padding-right: 15px;"/>
+                            </h1>
+                        </div>
+                    </div>
+
+                    <!-- Descripción y detalles del lugar -->
+                    <group string="Descripción" style="margin-top: -6px;">
+                        <field name="description" placeholder="Descripción del lugar..."/>
+                    </group>
+                    
+                    <!-- Categoría y creador del lugar -->
+                    <group string="Detalles" style="margin-top: -6px;">
+                        <field name="place_category"/>
+                        <field name="creator"/>
+                    </group>
+
+                    <!-- Ubicación del lugar -->
+                    <group string="Ubicación" style="margin-top: -6px;">
+                        <field name="location"/>
+                    </group>
+
+                    <!-- Fechas del lugar -->
+                    <group string="Fechas del lugar" style="margin-top: -6px;">
+                        <field name="creation_date" readonly="1" colspan="1"/>
+                        <field name="last_modification" readonly="1" colspan="1"/>
+                    </group>
+
+                </form>
+            </sheet>
+        </field>
+    </record>
+</odoo>
