@@ -52,3 +52,4 @@ class Recipes(models.Model):
         """
         vals['last_modification_date'] = datetime.now()
         return super(Recipes, self).write(vals)
+    
