@@ -58,7 +58,7 @@
 
   <!-- Submenús de festivales -->
   <menuitem id="vertical_menu_festivals1" name="Festivals" parent="horizontal_menu1" action="action_open_festivals" />
-  <menuitem id="vertical_menu_festivals2" name="Recipes" parent="horizontal_menu1" action="action_open_reviews" />
+  <menuitem id="vertical_menu_festivals2" name="Reviews" parent="horizontal_menu1" action="action_open_reviews" />
   <menuitem id="vertical_menu_festivals3" name="Details" parent="horizontal_menu1" />
 
   <menuitem id="vertical_menu_report_festivals" name="Report" parent="vertical_menu_festivals3" action="action_open_reports" />

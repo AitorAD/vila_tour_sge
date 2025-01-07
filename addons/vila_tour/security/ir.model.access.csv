@@ -1,2 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_vila_tour_vila_tour,vila_tour.vila_tour,model_vila_tour_vila_tour,base.group_user,1,1,1,1
+access_vila_tour_admin,access_vila_tour_admin,model_users,group_vilatour_admin,1,1,1,1
+access_vila_tour_editor_users,access_vila_tour_editor_users,model_users,group_vilatour_editor,0,0,0,0
