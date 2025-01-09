@@ -29,6 +29,7 @@
         <field name="category_id" ref="module_category_vilatour_vilatour" />
     </record>
 
+<<<<<<< Updated upstream
     <!-- Regla que hace que el rol de usuario solo pueda ver sus propias recetas -->
     <record id="recipes_user_rule" model="ir.rule">
         <field name="name">Recetas propias de usuarios</field>
@@ -37,4 +38,14 @@
         <field name="groups" eval="[(4,ref('group_vilatour_user'))]" />
     </record>
 
+=======
+    <!-- Regla que hace que el rol de usuario solo pueda ver sus propias recetas 
+    <record id="recipes_user_rule" model="ir.rule">
+        <field name="name">Recetas propias de usuarios</field>
+        <field name="model_id" ref="model_recipes" />   Apuntar al modelo de recetas
+        <field name="domain_force">[('creator_id','=',user.id)]</field>
+        <field name="groups" eval="[(4,ref('group_vilatour_user'))]" />
+    </record>
+    -->
+>>>>>>> Stashed changes
 </odoo>

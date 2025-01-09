@@ -17,6 +17,7 @@
     # for the full list
     'category': 'Tourism',
     'version': '0.1',
+    'application': True,
 
     # any module necessary for this one to work correctly
     'depends': ['base'],
@@ -35,6 +36,10 @@
 
         # Security
         'security/security.xml',
+<<<<<<< Updated upstream
         # 'security/ir.model.access.csv'
+=======
+        'security/ir.model.access.csv'
+>>>>>>> Stashed changes
     ],
 }
