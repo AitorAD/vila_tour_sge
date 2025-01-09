@@ -36,10 +36,6 @@
 
         # Security
         'security/security.xml',
-<<<<<<< Updated upstream
-        # 'security/ir.model.access.csv'
-=======
         'security/ir.model.access.csv'
->>>>>>> Stashed changes
     ],
 }
