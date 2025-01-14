@@ -23,6 +23,9 @@
 
     # always loaded
     'data': [
+        'security/security.xml',
+        'security/ir.model.access.csv',
+        'security/recipes_rules.xml',
         'views/views.xml',
         'views/views_ingredient.xml',
         'views/views_recipes.xml',
