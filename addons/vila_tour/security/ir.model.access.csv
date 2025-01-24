@@ -18,3 +18,4 @@ access_vila_tour_editor_reviews,access_vila_tour_editor_reviews,model_reviews,gr
 access_vila_tour_editor_reports,access_vila_tour_editor_reports,model_reports,group_vilatour_editor,1,1,1,1
 
 access_vila_tour_user_recipes,access_vila_tour_user_recipes,model_recipes,base.group_user,1,1,1,0
+access_vila_tour_user_ingredients,access_vila_tour_user_ingredients,model_ingredients,base.group_user,1,0,0,0

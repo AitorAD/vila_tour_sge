@@ -4,13 +4,13 @@
         <field name="name">Vista formulario de recetas</field>
         <field name="model">recipes</field>
         <field name="arch" type="xml">
-            <sheet>
-                <form string="Formulario de Recetas" class="oe_form_container" style="margin: auto;">
+            <form string="Formulario de Recetas" class="oe_form_container" style="margin: auto;">
+                <sheet>
                     <field name="image" widget="image" class="oe_avatar"
                         options="{'preview_image': 'image_256', 'size': [256, 256]}" />
 
                     <widget name="web_ribbon" title="Aprobada" bg_color="bg-success"
-                        attrs="{'invisible': [('approved', '=', False)]}" />
+                        attrs="{'invisible': [('approved', '=', False)]}" groups="!vila_tour.group_vilatour_user"/>
 
                     <div class="oe_title">
                         <div class="o_row" style="display: flex; align-items: center;">
@@ -25,11 +25,12 @@
 
                                 <span class="fa fa-circle"
                                     attrs="{'invisible': [('average_score', '=', False), ('approved', '=', False)]}"
+                                    groups="!vila_tour.group_vilatour_user"
                                     style="font-size: 16px;" />
 
                                 <div style="padding-left: 10px; padding-right: 10px;"
-                                    class="oe_title">Aprobada</div>
-                                <field name="approved" string="Aprobada" />
+                                    class="oe_title" groups="!vila_tour.group_vilatour_user">Aprobada</div>
+                                <field name="approved" string="Aprobada" groups="!vila_tour.group_vilatour_user"/>
                             </h1>
                         </div>
                     </div>
@@ -39,7 +40,7 @@
                         <field name="average_score" readonly="1" />
                         <field name="creation_date" readonly="1" />
                         <field name="last_modification_date" readonly="1" />
-                        <field name="creator_id" />
+                        <field name="creator_id" readonly="1"/>
                     </group>
 
                     <group string="Descripción" style="margin-top: -6px;">
@@ -49,9 +50,8 @@
                         </group>
                     </group>
 
-                </form>
-            </sheet>
-
+                </sheet>
+            </form>
         </field>
     </record>
 
