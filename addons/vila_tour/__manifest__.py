@@ -17,15 +17,14 @@
     # for the full list
     'category': 'Tourism',
     'version': '0.1',
+    'application': True,
 
     # any module necessary for this one to work correctly
     'depends': ['base'],
 
     # always loaded
     'data': [
-        'security/security.xml',
-        'security/ir.model.access.csv',
-        'security/recipes_rules.xml',
+        # Views
         'views/views.xml',
         'views/views_ingredient.xml',
         'views/views_recipes.xml',
@@ -33,6 +32,10 @@
         'views/views_categories.xml',
         'views/views_places.xml',
         'views/views_festivals.xml',
-        'views/views_users.xml'
+        'views/views_users.xml',
+
+        # Security
+        'security/security.xml',
+        'security/ir.model.access.csv'
     ],
 }
