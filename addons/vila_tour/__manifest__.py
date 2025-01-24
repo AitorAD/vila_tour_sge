@@ -36,6 +36,7 @@
 
         # Security
         'security/security.xml',
-        'security/ir.model.access.csv'
+        'security/ir.model.access.csv',
+        'security/recipes_rules.csv',
     ],
 }
