@@ -16,7 +16,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Tourism',
-    'version': '0.1',
+    'version': '0.4',
     'application': True,
 
     # any module necessary for this one to work correctly
@@ -36,7 +36,13 @@
 
         # Security
         'security/security.xml',
+        'security/recipes_rules.xml',
         'security/ir.model.access.csv',
-        'security/recipes_rules.csv',
     ],
+
+    'assets': {
+        'web.assets_backend': [
+            'vila_tour/static/src/css/style.css',  # Asegúrate de usar la ruta correcta
+        ],
+    },
 }

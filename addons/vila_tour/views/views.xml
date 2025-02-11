@@ -23,7 +23,7 @@
   <record id="action_open_recipes" model="ir.actions.act_window">
     <field name="name">Recipes</field>
     <field name="res_model">recipes</field>
-    <field name="view_mode">tree,form</field>
+    <field name="view_mode">tree,form,kanban</field>
   </record>
 
   <record id="action_open_ingredients" model="ir.actions.act_window">
