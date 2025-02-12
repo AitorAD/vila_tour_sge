@@ -50,8 +50,8 @@ class Recipes(models.Model):
         if self.average_score < 0 or self.average_score > 5:
             return {
                 'warning': {
-                    'title': _("Invalid Average Score"),
-                    'message': _("The average score must be between 0 and 5."),
+                    'title': ("Invalid Average Score"),
+                    'message': ("The average score must be between 0 and 5."),
                 }
             }
 

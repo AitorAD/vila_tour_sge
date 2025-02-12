@@ -22,13 +22,17 @@
 
                                 <div style="padding-left: 10px; padding-right: 15px;"
                                     class="oe_title">Puntuación:</div>
-                                <field name="average_score" readonly="1" class="oe_inline"
+                                <field name="average_score" readonly="0" class="oe_inline"
                                     style="padding-right: 15px;" />
 
+                                <!-- 
                                 <span class="fa fa-circle"
                                     attrs="{'invisible': [('average_score', '=', False), ('approved', '=', False)]}"
                                     groups="!vila_tour.group_vilatour_user"
                                     style="font-size: 16px;" />
+
+                                -->
+
 
                                 <div style="padding-left: 10px; padding-right: 10px;"
                                     class="oe_title" groups="!vila_tour.group_vilatour_user">
@@ -115,7 +119,6 @@
                                         </t>
                                     </t>
                                 </div>
-
                             </div>
                         </div>
                     </t>
@@ -124,5 +127,16 @@
         </field>
     </record>
 
+    <!-- Gráfico de recetas recientes -->
+    <record id="view_recent_recipes_graph" model="ir.ui.view">
+        <field name="name">Vista Gráfico de Recetas Recientes</field>
+        <field name="model">recipes</field>
+        <field name="arch" type="xml">
+            <graph string="Recetas Recientes">
+                <field name="is_recent" type="row" />
+                <field name="id" type="measure"/>
+            </graph>
+        </field>
+    </record>
 
 </odoo>
