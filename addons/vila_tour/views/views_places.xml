@@ -1,73 +1,112 @@
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Vista form de lugares -->
     <record id="view_places_form" model="ir.ui.view">
         <field name="name">Vista formulario de lugares</field>
         <field name="model">places</field>
         <field name="arch" type="xml">
-            <form string="Formulario de Lugares" class="oe_form_container" style="margin: auto;">
+            <form string="Formulario de Lugares">
                 <sheet>
-                     <!-- Imagen del lugar con opciones de previsualización -->
                      <field name="image_1920" widget="image" class="oe_avatar"
                         options="{'preview_image': 'image_256', 'size': [256, 256]}"
                         groups="vila_tour.group_vilatour_editor" readonly="1" />
 
-                    <!-- Título y Puntuación del lugar -->
                     <div class="oe_title">
                         <div class="o_row" style="display: flex; align-items: center;">
-                            <h1 style="display: flex; align-items: center;">
-                                <field name="name" placeholder="Nombre del Lugar" required="1"
-                                    default_focus="1" class="oe_inline" />
-
-                                <!-- Texto "Puntuación" y campo de solo lectura -->
-                                <div style="padding-left: 10px; padding-right: 15px;"
-                                    class="oe_title">Puntuación:</div>
-                                <field name="average_score" readonly="1" class="oe_inline"
-                                    style="padding-right: 15px;" />
+                            <h1>
+                                <field name="name" placeholder="Nombre del Lugar" required="1" default_focus="1" class="oe_inline" />
+                                <div style="padding-left: 10px; padding-right: 15px;" class="oe_title">Puntuación:</div>
+                                <field name="average_score" readonly="0" class="oe_inline" />
                             </h1>
                         </div>
                     </div>
 
-                    <!-- Descripción y detalles del lugar -->
-                    <group string="Descripción" style="margin-top: -6px;">
+                    <group string="Descripción">
                         <field name="description" placeholder="Descripción del lugar..." />
                     </group>
 
-                    <!-- Categoría y creador del lugar -->
-                    <group string="Detalles" style="margin-top: -6px;">
+                    <group string="Detalles">
                         <field name="place_category" />
                         <field name="creator_id" />
-                        
                     </group>
 
-                    <!-- Ubicación del lugar -->
-                    <group string="Ubicación" style="margin-top: -6px;">
+                    <group string="Ubicación">
                         <field name="location" />
                     </group>
 
-                    <!-- Fechas del lugar -->
-                    <group string="Fechas del lugar" style="margin-top: -6px;">
-                        <field name="creation_date" readonly="1" colspan="1" />
-                        <field name="last_modification_date" readonly="1" colspan="1" />
+                    <group string="Fechas del lugar">
+                        <field name="creation_date" readonly="1" />
+                        <field name="last_modification_date" readonly="1" />
                     </group>
-
                 </sheet>
             </form>
         </field>
     </record>
 
+    <!-- Vista tree de places -->
     <record id="view_places_tree" model="ir.ui.view">
         <field name="name">places.tree</field>
         <field name="model">places</field>
         <field name="arch" type="xml">
             <tree string="Place List">
-                <field name="image" widget="image" options="{'size': [32, ]}" />
-                <field name="name" string="Name" />
-                <field name="location" string="Location" />
-                <field name="place_category" string="Category" />
-                <field name="average_score" string="Average Score" />
-                <field name="creation_date" string="Created On" />
-                <field name="last_modification_date" string="Last Modified" />
+                <field name="image_1920" widget="image" options="{'size': [32, 32]}" />
+                <field name="name" />
+                <field name="location" />
+                <field name="place_category" />
+                <field name="average_score" />
+                <field name="creation_date" />
+                <field name="last_modification_date" />
             </tree>
         </field>
     </record>
+
+    <!-- Vista kanban de places -->
+    <record id="view_places_kanban" model="ir.ui.view">
+        <field name="name">Vista Kanban de Places</field>
+        <field name="model">places</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="id" />
+                <field name="average_score" invisible="1" />
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click">
+                            <div class="oe_kanban_details">
+                                <div class="o_kanban_image">
+                                    <img t-att-src="kanban_image('places', 'image_512', record.id.value)" class="o_image_128_contain" />
+                                </div>
+                                <strong class="o_kanban_record_title">
+                                    <field name="name" />
+                                </strong>
+
+                                <div class="o_rating">
+                                    <t t-set="average" t-value="record.average_score or 0" />
+                                    <t t-set="stars" t-value="[0, 1, 2, 3, 4]" />
+                                    <t t-foreach="stars" t-as="i">
+                                        <t t-if="i &lt; average">
+                                            <i class="fa fa-star text-warning"></i>
+                                        </t>
+                                        <t t-else="">
+                                            <i class="fa fa-star-o text-warning"></i>
+                                        </t>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_places_graph" model="ir.ui.view">
+        <field name="name">places.graph.view</field>
+        <field name="model">places</field>
+        <field name="arch" type="xml">
+            <graph string="Places Statistics">
+                 <field name="place_category" type="row"/>
+                <field name="id" type="measure"/>
+            </graph>
+        </field>
+    </record>
+    
 </odoo>

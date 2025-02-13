@@ -30,4 +30,17 @@
             </tree>
         </field>
     </record>
+
+    <!-- Gráfico de ingredientes por categoría -->
+    <record id="view_category_ingredients_graph" model="ir.ui.view">
+        <field name="name">Total de uso de los ingredientes</field>
+        <field name="model">ingredients</field>
+        <field name="arch" type="xml">
+            <graph string="Ingredientes por categoría" type="bar">
+                <field name="category" type="row"/>
+                <field name="id" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
 </odoo>
