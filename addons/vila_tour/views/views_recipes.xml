@@ -163,7 +163,7 @@
                     domain="[('approved', '=', 'True')]" />
 
                 <filter string="Recetas sin aprobar" name="approved_false"
-                    domain="[('approved', '=', 'False')]" />
+                    domain="[('approved', '!=', 'True')]" />
 
                 <filter string="Recetas recientes" name="is_recent"
                     domain="[('is_recent', '=', 'True')]" />
