@@ -134,7 +134,7 @@
         <field name="arch" type="xml">
             <graph string="Ingredientes por Receta">
                 <field name="ingredients" type="row" />
-                <field name="id" type="measure"/>
+                <field name="id" type="measure" />
             </graph>
         </field>
     </record>
@@ -179,6 +179,20 @@
                     domain="[('last_modification_date', '>=', (context_today() - datetime.timedelta(days=3)))]" />
 
             </search>
+        </field>
+    </record>
+
+    <!-- Calendar recipes -->
+    <!-- falta la restricción de fechas para mostrar solo las recetas de este año -->
+    <record id="view_recipes_calendar" model="ir.ui.view">
+        <field name="name">Vista Calendar de recetas</field>
+        <field name="model">recipes</field>
+        <field name="arch" type="xml">
+            <calendar string="Calendario de Recetas" date_start="creation_date" color="approved"
+                quick_add="False" mode="month" event_open_popup="1">
+                <field name="name" />
+                <field name="creation_date" />
+            </calendar>
         </field>
     </record>
 </odoo>
