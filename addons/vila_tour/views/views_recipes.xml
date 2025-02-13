@@ -127,14 +127,14 @@
         </field>
     </record>
 
-    <!-- Gráfico de recetas recientes -->
-    <record id="view_recent_recipes_graph" model="ir.ui.view">
-        <field name="name">Vista Gráfico de Recetas Recientes</field>
+    <!-- Gráfico de ingrdientes por receta -->
+    <record id="view_ingredients_graph" model="ir.ui.view">
+        <field name="name">Vista Gráfico de Ingredientes</field>
         <field name="model">recipes</field>
         <field name="arch" type="xml">
-            <graph string="Recetas Recientes">
-                <field name="is_recent" type="row" />
-                <field name="id" type="measure" />
+            <graph string="Ingredientes por Receta">
+                <field name="ingredients" type="row" />
+                <field name="id" type="measure"/>
             </graph>
         </field>
     </record>

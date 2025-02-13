@@ -113,4 +113,16 @@
             </calendar>
         </field>
     </record>
+
+
+    <record id="view_festivals_graph" model="ir.ui.view">
+        <field name="name">festivals.graph.view</field>
+        <field name="model">festivals</field>
+        <field name="arch" type="xml">
+            <graph string="Festival Statistics">
+                <field name="average_score" type="row"/>
+            </graph>
+        </field>
+    </record>
+
 </odoo>
