@@ -36,7 +36,6 @@
 
         # Security
         'security/security.xml',
-        'security/recipes_rules.xml',
         'security/ir.model.access.csv',
     ],
 
