@@ -68,6 +68,10 @@
         <field name="arch" type="xml">
             <search>
                 <field name="name" string="Título" />
+                <field name="description" string="Descripción" />
+                <field name="start_date" string="Fecha inicio" />
+                <field name="end_date" string="Fecha final" />
+
                 <field name="average_score" string="Puntuación Media" />
                 <filter string="Muy bien (4-5 estrellas)" name="average_score"
                     domain="[('average_score', '&gt;=', '4')]" />

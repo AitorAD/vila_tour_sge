@@ -79,6 +79,9 @@
         <field name="arch" type="xml">
             <search>
                 <field name="name" string="Título" />
+                <field name="description" string="Descripción" />
+                <field name="place_category" string="Categoría" />
+
                 <field name="average_score" string="Puntuación Media" />
                 <filter string="Muy bien (4-5 estrellas)" name="average_score"
                     domain="[('average_score', '&gt;=', '4')]" />
