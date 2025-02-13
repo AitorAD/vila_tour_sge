@@ -11,7 +11,7 @@
   <record id="action_open_festivals" model="ir.actions.act_window">
     <field name="name">Festivals</field>
     <field name="res_model">festivals</field>
-    <field name="view_mode">tree,form</field>
+    <field name="view_mode">tree,form,calendar</field>
   </record>
 
   <record id="action_open_places" model="ir.actions.act_window">
