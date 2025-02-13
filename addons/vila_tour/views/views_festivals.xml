@@ -61,6 +61,42 @@
         </field>
     </record>
 
+    <!-- Vista kanban de festivales -->
+    <record id="view_festivals_kanban" model="ir.ui.view">
+        <field name="name">Vista Kanban de Fiestas y Tradiciones</field>
+        <field name="model">festivals</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="id" />
+                <field name="average_score" invisible="1" />
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click">
+                            <div class="oe_kanban_details">
+                                <div class="o_kanban_image">
+                                    <img
+                                        t-att-src="kanban_image('recipes', 'image_512', record.id.value)"
+                                        class="o_image_128_contain" />
+                                </div>
+                                <strong class="o_kanban_record_title">
+                                    <field name="name" />
+                                </strong>
+
+                                <!-- Pinta las estrellas en base al average_score -->
+                                <!-- Pinta las estrellas con el widget rating -->
+                                <div class="o_rating">
+                                    <field name="average_score" widget="rating"
+                                        options="{'max_value': 5}" />
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+
     <!-- busquedas festivales -->
     <record id="view_festivals_search_view" model="ir.ui.view">
         <field name="name">Vista Busqueda de Fiestas y Tradiciones</field>
@@ -120,7 +156,7 @@
         <field name="model">festivals</field>
         <field name="arch" type="xml">
             <graph string="Festival Statistics">
-                <field name="average_score" type="row"/>
+                <field name="average_score" type="row" />
             </graph>
         </field>
     </record>
