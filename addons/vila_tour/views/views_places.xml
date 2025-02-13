@@ -6,8 +6,8 @@
         <field name="arch" type="xml">
             <form string="Formulario de Lugares" class="oe_form_container" style="margin: auto;">
                 <sheet>
-                     <!-- Imagen del lugar con opciones de previsualización -->
-                     <field name="image_1920" widget="image" class="oe_avatar"
+                    <!-- Imagen del lugar con opciones de previsualización -->
+                    <field name="image_1920" widget="image" class="oe_avatar"
                         options="{'preview_image': 'image_256', 'size': [256, 256]}"
                         groups="vila_tour.group_vilatour_editor" readonly="1" />
 
@@ -21,7 +21,7 @@
                                 <!-- Texto "Puntuación" y campo de solo lectura -->
                                 <div style="padding-left: 10px; padding-right: 15px;"
                                     class="oe_title">Puntuación:</div>
-                                <field name="average_score" readonly="1" class="oe_inline"
+                                <field name="average_score" readonly="0" class="oe_inline"
                                     style="padding-right: 15px;" />
                             </h1>
                         </div>
@@ -36,7 +36,7 @@
                     <group string="Detalles" style="margin-top: -6px;">
                         <field name="place_category" />
                         <field name="creator_id" />
-                        
+
                     </group>
 
                     <!-- Ubicación del lugar -->
@@ -55,6 +55,7 @@
         </field>
     </record>
 
+    <!-- tree places -->
     <record id="view_places_tree" model="ir.ui.view">
         <field name="name">places.tree</field>
         <field name="model">places</field>
@@ -68,6 +69,34 @@
                 <field name="creation_date" string="Created On" />
                 <field name="last_modification_date" string="Last Modified" />
             </tree>
+        </field>
+    </record>
+
+    <!-- busquedas places -->
+    <record id="view_places_search_view" model="ir.ui.view">
+        <field name="name">Vista Busqueda de lugares</field>
+        <field name="model">places</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="Título" />
+                <field name="average_score" string="Puntuación Media" />
+                <filter string="Muy bien (4-5 estrellas)" name="average_score"
+                    domain="[('average_score', '&gt;=', '4')]" />
+
+                <filter string="Bien (3 estrellas)" name="average_score"
+                    domain="[('average_score', '=', '3')]" />
+
+                <filter string="Mal (0-1-2 estrellas)" name="average_score"
+                    domain="[('average_score', '&lt;=', '2')]" />
+
+                <filter string="Lugares sin descripción" name="no_description"
+                    domain="[('description', '=', False)]" />
+
+                <filter string="Lugares modificados recientemente (últimos 3 días)"
+                    name="recently_modified"
+                    domain="[('last_modification_date', '>=', (context_today() - datetime.timedelta(days=3)))]" />
+
+            </search>
         </field>
     </record>
 </odoo>

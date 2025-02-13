@@ -21,7 +21,7 @@
                     <!-- Sección de Información General -->
                     <group string="General Information" col="2">
                         <field name="id" readonly="1" />
-                        <field name="average_score" readonly="1" />
+                        <field name="average_score" readonly="0" />
                         <field name="creation_date" readonly="1" />
                         <field name="last_modification_date" readonly="1" />
                         <field name="creator_id" />
@@ -44,6 +44,7 @@
         </field>
     </record>
 
+    <!-- tree festivales -->
     <record id="view_festivals_tree" model="ir.ui.view">
         <field name="name">festivals.tree</field>
         <field name="model">festivals</field>
@@ -57,6 +58,42 @@
                 <field name="creation_date" string="Created On" />
                 <field name="last_modification_date" string="Last Modified" />
             </tree>
+        </field>
+    </record>
+
+    <!-- busquedas festivales -->
+    <record id="view_festivals_search_view" model="ir.ui.view">
+        <field name="name">Vista Busqueda de Fiestas y Tradiciones</field>
+        <field name="model">festivals</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="Título" />
+                <field name="average_score" string="Puntuación Media" />
+                <filter string="Muy bien (4-5 estrellas)" name="average_score"
+                    domain="[('average_score', '&gt;=', '4')]" />
+
+                <filter string="Bien (3 estrellas)" name="average_score"
+                    domain="[('average_score', '=', '3')]" />
+
+                <filter string="Mal (0-1-2 estrellas)" name="average_score"
+                    domain="[('average_score', '&lt;=', '2')]" />
+
+                <filter string="FyT sin descripción" name="no_description"
+                    domain="[('description', '=', False)]" />
+
+                <filter string="FyT modificados recientemente (últimos 3 días)"
+                    name="recently_modified"
+                    domain="[('last_modification_date', '>=', (context_today() - datetime.timedelta(days=3)))]" />
+
+                <!-- Filtrar por fechas -->
+                <filter string="Festivales pasados" name="past_festivals"
+                    domain="[('end_date', '&lt;', context_today())]" />
+                <filter string="Festivales en curso" name="ongoing_festivals"
+                    domain="[('start_date', '&lt;=', context_today()), ('end_date', '&gt;=', context_today())]" />
+                <filter string="Festivales futuros" name="upcoming_festivals"
+                    domain="[('start_date', '&gt;', context_today())]" />
+
+            </search>
         </field>
     </record>
 </odoo>

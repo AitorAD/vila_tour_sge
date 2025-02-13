@@ -24,6 +24,7 @@ class Recipes(models.Model):
     is_recent = fields.Boolean(
         string="Is Recent?",
         compute="_compute_is_recent",
+        store=True,  # Hace que el campo sea almacenado en la base de datos
         help="Computed field indicating if the recipe was recently created."
     )
     ingredients = fields.Many2many(

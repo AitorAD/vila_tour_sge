@@ -134,9 +134,48 @@
         <field name="arch" type="xml">
             <graph string="Recetas Recientes">
                 <field name="is_recent" type="row" />
-                <field name="id" type="measure"/>
+                <field name="id" type="measure" />
             </graph>
         </field>
     </record>
 
+    <!-- busquedas recetas -->
+    <record id="view_recipes_search_view" model="ir.ui.view">
+        <field name="name">Vista Busqueda de recetas</field>
+        <field name="model">recipes</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="Título" />
+                <field name="average_score" string="Puntuación Media" />
+                <filter string="Muy bien (4-5 estrellas)" name="average_score"
+                    domain="[('average_score', '&gt;=', '4')]" />
+
+                <filter string="Bien (3 estrellas)" name="average_score"
+                    domain="[('average_score', '=', '3')]" />
+
+                <filter string="Mal (0-1-2 estrellas)" name="average_score"
+                    domain="[('average_score', '&lt;=', '2')]" />
+
+                <filter string="Recetas aprobadas" name="approved_true"
+                    domain="[('approved', '=', 'True')]" />
+
+                <filter string="Recetas sin aprobar" name="approved_false"
+                    domain="[('approved', '=', 'False')]" />
+
+                <filter string="Recetas recientes" name="is_recent"
+                    domain="[('is_recent', '=', 'True')]" />
+
+                <filter string="Más de 5 ingredientes" name="many_ingredients"
+                    domain="[('ingredients', '>', 5)]" />
+
+                <filter string="Recetas sin descripción" name="no_description"
+                    domain="[('description', '=', False)]" />
+
+                <filter string="Recetas modificadas recientemente (últimos 3 días)"
+                    name="recently_modified"
+                    domain="[('last_modification_date', '>=', (context_today() - datetime.timedelta(days=3)))]" />
+
+            </search>
+        </field>
+    </record>
 </odoo>
