@@ -143,17 +143,11 @@
                                     <field name="name" />
                                 </strong>
 
-                                <div class="o_rating">
-                                    <t t-set="average" t-value="record.average_score or 0" />
-                                    <t t-set="stars" t-value="[0, 1, 2, 3, 4]" />
-                                    <t t-foreach="stars" t-as="i">
-                                        <t t-if="i &lt; average">
-                                            <i class="fa fa-star text-warning"></i>
-                                        </t>
-                                        <t t-else="">
-                                            <i class="fa fa-star-o text-warning"></i>
-                                        </t>
-                                    </t>
+                                <div class="o_kanban_rating">
+                                    <field name="progress_percentage" widget="progressbar"
+                                        options="{'max': 100}" />
+
+                                    <div> (<field name="average_score" /> <span t-esc="'⭐'" />) </div>
                                 </div>
                             </div>
                         </div>

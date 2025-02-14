@@ -20,6 +20,14 @@ class Recipes(models.Model):
         readonly=True
     )
     average_score = fields.Float(string="Average Score", default=0.0, help="Average rating of the recipe")
+    progress_percentage = fields.Integer('Progress Percentage', compute='_compute_progress_percentage')  # Nuevo campo calculado
+
+    @api.depends('average_score')
+    def _compute_progress_percentage(self):
+        for record in self:
+            # Calcula el porcentaje en base al average_score
+            record.progress_percentage = int(record.average_score * 20)  # 5 estrellas = 100% => 1 estrella = 20%
+
     approved = fields.Boolean(string='Approved', default=False)
     is_recent = fields.Boolean(
         string="Is Recent?",

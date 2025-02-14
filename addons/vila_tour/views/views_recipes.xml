@@ -108,21 +108,11 @@
                                     <field name="name" />
                                 </strong>
 
-                                <!-- Pinta las estrellas en base a la media -->
-                                <div class="o_rating">
-                                    <!-- Convertir el puntaje en una variable sin usar int() -->
-                                    <t t-set="average" t-value="record.average_score or 0" />
-                                    <t t-set="stars" t-value="[0, 1, 2, 3, 4]" />
-                                    <t t-foreach="stars" t-as="i">
-                                        <t t-if="i &lt; average">
-                                            <!-- Estrella llena -->
-                                            <i class="fa fa-star text-warning"></i>
-                                        </t>
-                                        <t t-else="">
-                                            <!-- Estrella vacía -->
-                                            <i class="fa fa-star-o text-warning"></i>
-                                        </t>
-                                    </t>
+                                <div class="o_kanban_rating">
+                                    <field name="progress_percentage" widget="progressbar"
+                                        options="{'max': 100}" />
+
+                                    <div> (<field name="average_score" /> <span t-esc="'⭐'" />) </div>
                                 </div>
                             </div>
                         </div>
@@ -184,6 +174,20 @@
                     domain="[('last_modification_date', '>=', (context_today() - datetime.timedelta(days=3)))]" />
 
             </search>
+        </field>
+    </record>
+
+    <!-- Calendar recipes -->
+    <!-- falta la restricción de fechas para mostrar solo las recetas de este año -->
+    <record id="view_recipes_calendar" model="ir.ui.view">
+        <field name="name">Vista Calendar de recetas</field>
+        <field name="model">recipes</field>
+        <field name="arch" type="xml">
+            <calendar string="Calendario de Recetas" date_start="creation_date" color="approved"
+                quick_add="False" mode="month" event_open_popup="1">
+                <field name="name" />
+                <field name="creation_date" />
+            </calendar>
         </field>
     </record>
 </odoo>

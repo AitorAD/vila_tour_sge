@@ -11,7 +11,7 @@
   <record id="action_open_festivals" model="ir.actions.act_window">
     <field name="name">Festivals</field>
     <field name="res_model">festivals</field>
-    <field name="view_mode">tree,form,calendar</field>
+    <field name="view_mode">tree,form,kanban,calendar</field>
   </record>
 
   <record id="action_open_places" model="ir.actions.act_window">
@@ -43,11 +43,24 @@
     <field name="res_model">users</field>
     <field name="view_mode">tree,form</field>
     <field name="groups_id" eval="[(6, 0, [ref('vila_tour.group_vilatour_admin')])]" />
+
   </record>
 
-  <record id="action_open_reports" model="ir.actions.act_window">
-    <field name="name">Reports</field>
-    <field name="res_model">reports</field>
+    <record id="action_open_reports_festivals" model="ir.actions.act_window">
+    <field name="name">Festival Reports</field>
+    <field name="res_model">festivals</field>
+    <field name="view_mode">tree,form</field>
+  </record>
+
+  <record id="action_open_reports_places" model="ir.actions.act_window">
+    <field name="name">Place Reports</field>
+    <field name="res_model">places</field>
+    <field name="view_mode">tree,form</field>
+  </record>
+
+  <record id="action_open_reports_recipes" model="ir.actions.act_window">
+    <field name="name">Recipe Reports</field>
+    <field name="res_model">recipes</field>
     <field name="view_mode">tree,form</field>
   </record>
 
@@ -103,18 +116,12 @@
     action="action_open_reviews" />
   <menuitem id="vertical_menu_festivals3" name="Details" parent="horizontal_menu1" />
 
-  <menuitem id="vertical_menu_report_festivals" name="Report" parent="vertical_menu_festivals3"
-    action="action_open_reports" />
-
   <!-- Submenús de lugares -->
   <menuitem id="vertical_menu_places1" name="Places" parent="horizontal_menu2"
     action="action_open_places" />
   <menuitem id="vertical_menu_places2" name="Reviews" parent="horizontal_menu2"
     action="action_open_reviews" />
   <menuitem id="vertical_menu_places3" name="Details" parent="horizontal_menu2" />
-
-  <menuitem id="vertical_menu_report_places" name="Report" parent="vertical_menu_places3"
-    action="action_open_reports" />
 
   <!-- Submenús de recetas -->
   <menuitem id="vertical_menu_recipes1" name="Recipes" parent="horizontal_menu3"
@@ -129,17 +136,12 @@
     action="action_open_categories" sequence="3" />
   <menuitem id="vertical_menu_recipes4" name="Details" parent="horizontal_menu3" sequence="4" />
 
-  <menuitem id="vertical_menu_report_recipes" name="Report" parent="vertical_menu_recipes4"
-    action="action_open_reports" />
-
   <!-- Submenús de usuarios -->
   <menuitem id="vertical_menu_users1" name="Users" parent="horizontal_menu4"
     action="action_open_users" />
   <menuitem id="vertical_menu_users2" name="Reviews" parent="horizontal_menu4"
     action="action_open_reviews" />
   <menuitem id="vertical_menu_users3" name="Details" parent="horizontal_menu4" />
-  <menuitem id="vertical_menu_report_users" name="Report" parent="vertical_menu_users3"
-    action="action_open_reports" />
 
   <!-- Submenús de estadísticas -->
   <menuitem id="vertical_menu_statistics_festivals" name="Festival by Rating"
