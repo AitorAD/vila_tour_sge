@@ -61,25 +61,25 @@
   graficas-->
 
   <record id="action_open_festivals_graph" model="ir.actions.act_window">
-    <field name="name">Festival Statistics</field>
+    <field name="name">Festival by Rating</field>
     <field name="res_model">festivals</field>
     <field name="view_mode">graph</field>
   </record>
 
   <record id="action_open_places_graph" model="ir.actions.act_window">
-    <field name="name">Places Statistics</field>
+    <field name="name">Places by Category</field>
     <field name="res_model">places</field>
     <field name="view_mode">graph</field>
   </record>
 
   <record id="action_open_recipes_graph" model="ir.actions.act_window">
-    <field name="name">Recipes Statistics</field>
+    <field name="name">Ingredients by Recipes</field>
     <field name="res_model">recipes</field>
     <field name="view_mode">graph</field>
   </record>
 
   <record id="action_open_ingredients_graph" model="ir.actions.act_window">
-    <field name="name">Ingredients Statistics</field>
+    <field name="name">Ingredients by Category</field>
     <field name="res_model">ingredients</field>
     <field name="view_mode">graph</field>
   </record>
@@ -142,16 +142,16 @@
     action="action_open_reports" />
 
   <!-- Submenús de estadísticas -->
-  <menuitem id="vertical_menu_statistics_festivals" name="Festival Statistics"
+  <menuitem id="vertical_menu_statistics_festivals" name="Festival by Rating"
     parent="horizontal_menu5" action="action_open_festivals_graph" />
 
-  <menuitem id="vertical_menu_statistics_places" name="Places Statistics"
+  <menuitem id="vertical_menu_statistics_places" name="Places by Category"
     parent="horizontal_menu5" action="action_open_places_graph" />
 
-  <menuitem id="vertical_menu_statistics_recipes" name="Recipes Statistics"
+  <menuitem id="vertical_menu_statistics_recipes" name="Ingredients by Recipes"
     parent="horizontal_menu5" action="action_open_recipes_graph" />
 
-  <menuitem id="vertical_menu_statistics_ingredients" name="Ingredients Statistics"
+  <menuitem id="vertical_menu_statistics_ingredients" name="Categories by Ingredients"
     parent="horizontal_menu5" action="action_open_ingredients_graph" />
 
 </odoo>

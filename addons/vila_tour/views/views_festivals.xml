@@ -24,7 +24,7 @@
                         <field name="average_score" readonly="0" />
                         <field name="creation_date" readonly="1" />
                         <field name="last_modification_date" readonly="1" />
-                        <field name="creator_id" />
+                        <field name="creator_id" readonly="1" />
                     </group>
 
                     <!-- Descripción -->
@@ -49,17 +49,24 @@
         <field name="name">festivals.tree</field>
         <field name="model">festivals</field>
         <field name="arch" type="xml">
-            <tree string="Festival List" decoration-danger="end_date &lt; context_today()">
-                <field name="image" widget="image" options="{'size': [32, ]}" />
-                <field name="name" string="Name" />
-                <field name="start_date" string="Start Date" />
-                <field name="end_date" string="End Date" />
+            <tree string="Festival List" decoration-danger="end_date &lt; context_today()"
+                default_order="start_date desc">
+                <field name="image" widget="image" options="{'size': [32, 32]}" />
+                <field name="name" widget="badge"
+                    decoration-danger="average_score &lt; 3"
+                    decoration-success="average_score &gt;= 7" />
+                <field name="start_date" string="Start Date" widget="date" />
+                <field name="end_date" string="End Date" widget="date" />
                 <field name="average_score" string="Average Score" />
-                <field name="creation_date" string="Created On" />
-                <field name="last_modification_date" string="Last Modified" />
+                <field name="creation_date" string="Created On" widget="datetime" />
+                <field name="last_modification_date" string="Last Modified" widget="datetime" />
+                <field name="creator_id" widget="many2one_avatar_user" options="{'no_open': True}"
+                    string="Creador">
+                </field>
             </tree>
         </field>
     </record>
+
 
     <!-- busquedas festivales -->
     <record id="view_festivals_search_view" model="ir.ui.view">
@@ -119,8 +126,8 @@
         <field name="name">festivals.graph.view</field>
         <field name="model">festivals</field>
         <field name="arch" type="xml">
-            <graph string="Festival Statistics">
-                <field name="average_score" type="row"/>
+            <graph string="Festival by Rating">
+                <field name="average_score" type="row" />
             </graph>
         </field>
     </record>
