@@ -33,10 +33,12 @@
         'views/views_places.xml',
         'views/views_festivals.xml',
         'views/views_users.xml',
+        'report/report_recipes.xml',
+        'report/report_festivals.xml',
+        'report/report_places.xml',
 
         # Security
         'security/security.xml',
-        'security/recipes_rules.xml',
         'security/ir.model.access.csv',
     ],
 
