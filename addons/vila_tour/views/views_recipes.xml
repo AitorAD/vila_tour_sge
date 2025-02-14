@@ -72,8 +72,13 @@
                 decoration-success="approved == True">
                 <field name="name" widget="badge" decoration-danger="approved == False"
                     decoration-success="approved == True" />
-                <field name="average_score" />
+                <field name="average_score" widget="rating" string="Calificación Promedio" />
                 <field name="approved" />
+                <!-- Mostrar nombre y foto de avatar del creador en el mismo campo -->
+                <field name="creator_id" widget="many2one_avatar_user" options="{'no_open': True}"
+                    string="Creador">
+                </field>
+                <field name="ingredients" widget="many2many_tags" options="{'no_create': True}" />
             </tree>
         </field>
     </record>

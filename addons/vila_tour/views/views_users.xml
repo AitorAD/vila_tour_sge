@@ -4,29 +4,32 @@
         <field name="name">users.form</field>
         <field name="model">users</field>
         <field name="arch" type="xml">
-            <form string="User Form" class="oe_form_container" style="max-width: 850px; margin: auto;">
+            <form string="User Form" class="oe_form_container"
+                style="max-width: 850px; margin: auto;">
                 <!-- Encabezado del formulario -->
                 <div class="oe_title">
                     <div class="o_row" style="display: flex; align-items: center; gap: 20px;">
                         <h1 style="margin: 0;">
-                            <field name="name" placeholder="Username" required="1" default_focus="1" class="oe_inline"/>
+                            <field name="name" placeholder="Username" required="1" default_focus="1"
+                                class="oe_inline" />
                         </h1>
-                        <field name="image_1920" widget="image" class="oe_inline" style="max-height: 80px; max-width: 80px; border-radius: 50%;"/>
+                        <field name="image_1920" widget="image" class="oe_inline"
+                            style="max-height: 80px; max-width: 80px; border-radius: 50%;" />
                     </div>
                 </div>
                 <group>
                     <!-- Organización del formulario en columnas -->
                     <group string="Personal Information" col="2">
-                        <field name="full_name"/>
-                        <field name="email" required="1"/>
-                        <field name="phone"/>
-                        <field name="birth_date"/>
-                        <field name="gender"/>
+                        <field name="full_name" />
+                        <field name="email" required="1" />
+                        <field name="phone" />
+                        <field name="birth_date" />
+                        <field name="gender" />
                     </group>
                     <group string="Account Details" col="2">
-                        <field name="password" password="1" placeholder="Enter a secure password"/>
-                        <field name="password_rep" password="1" placeholder="Confirm your password"/>
-                        <field name="role" widget="selection"/>
+                        <field name="password" password="1" placeholder="Enter a secure password" />
+                        <field name="password_rep" password="1" placeholder="Confirm your password" />
+                        <field name="role" widget="selection" />
                     </group>
                 </group>
 
@@ -35,16 +38,16 @@
                     <page string="Festivals Created">
                         <field name="festival_ids">
                             <tree>
-                                <field name="name" string="Festival Name"/>
-                                <field name="start_date"/>
-                                <field name="end_date"/>
+                                <field name="name" string="Festival Name" />
+                                <field name="start_date" />
+                                <field name="end_date" />
                             </tree>
                         </field>
                     </page>
                     <page string="Places Created">
                         <field name="places_ids">
                             <tree>
-                                <field name="name" string="Place Name"/>
+                                <field name="name" string="Place Name" />
                                 <!-- Elimina o corrige el campo 'locality' -->
                                 <!-- <field name="locality"/> -->
                             </tree>
@@ -53,8 +56,8 @@
                     <page string="Recipes Created">
                         <field name="recipes_ids">
                             <tree>
-                                <field name="name" string="Recipe Name"/>
-                                <field name="ingredients"/>
+                                <field name="name" string="Recipe Name" />
+                                <field name="ingredients" />
                             </tree>
                         </field>
                     </page>
@@ -67,15 +70,24 @@
         <field name="name">users.tree</field>
         <field name="model">users</field>
         <field name="arch" type="xml">
-            <tree string="User List" decoration-info="role == 'Administrador'">
+            <tree string="User List" decoration-info="role == 'Administrador'"
+                decoration-success="role == 'Editor'"
+                decoration-danger="role == 'Viewer'">
+
                 <!-- Imagen del usuario -->
-                <field name="image_1920" widget="image" options="{'size': [32, 32]}" string="Profile Picture"/>
+                <field name="image_1920" widget="image" options="{'size': [32, 32]}"
+                    string="Profile Picture" class="oe_inline" />
+
                 <!-- Información básica -->
-                <field name="name" string="Username"/>
-                <field name="full_name" string="Full Name"/>
-                <field name="email" string="Email"/>
-                <field name="role" string="Role"/>
+                <field name="name" string="Username" widget="badge"
+                    decoration-info="role == 'Administrador'" />
+                <field name="full_name" string="Full Name" />
+                <field name="email" string="Email" />
+                <field name="role" string="Role" widget="badge"
+                    decoration-info="role == 'Administrador'"
+                    decoration-success="role == 'Editor'" decoration-danger="role == 'Viewer'" />
             </tree>
         </field>
     </record>
+
 </odoo>

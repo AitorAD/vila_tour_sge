@@ -35,14 +35,16 @@ class Festivals(models.Model):
     end_date = fields.Date(string="End Date", required=True)
     latitude = fields.Float(string="Latitude", help="Latitude of the festival location")
     longitude = fields.Float(string="Longitude", help="Longitude of the festival location")
-
+    
     creator_id = fields.Many2one(
-        comodel_name='users',
+        comodel_name='res.users',
         string='Creator',
-        required=True,
         ondelete='cascade',
-        help="The user who created this festival"
+        default=lambda self: self.env.uid,
+        required=True,
+        help="The user who created this recipe"
     )
+
 
     @api.constrains('start_date', 'end_date')
     def _check_dates(self):
@@ -53,6 +55,8 @@ class Festivals(models.Model):
     @api.model
     def create(self, vals):
         vals['last_modification_date'] = datetime.now()
+        vals['creator_id'] = self.env.uid
+ 
         return super(Festivals, self).create(vals)
 
     def write(self, vals):
