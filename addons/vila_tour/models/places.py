@@ -12,6 +12,14 @@ class Places(models.Model):
     description = fields.Text()
     image = fields.Image(string="Image")
     average_score = fields.Integer()
+    progress_percentage = fields.Integer('Progress Percentage', compute='_compute_progress_percentage')  # Nuevo campo calculado
+
+    @api.depends('average_score')
+    def _compute_progress_percentage(self):
+        for record in self:
+            # Calcula el porcentaje en base al average_score
+            record.progress_percentage = int(record.average_score * 20)  # 5 estrellas = 100% => 1 estrella = 20%
+
     place_category = fields.Selection([
         ('beach', 'Playa'),
         ('monument', 'Monumento'),

@@ -8,7 +8,6 @@
                 <sheet>
                     <!-- Imagen del lugar con opciones de previsualización -->
                     <field name="image_1920" widget="image" class="oe_avatar"
-
                         options="{'preview_image': 'image_256', 'size': [256, 256]}"
                         groups="vila_tour.group_vilatour_editor" readonly="1" />
 
@@ -111,23 +110,19 @@
                         <div class="oe_kanban_global_click">
                             <div class="oe_kanban_details">
                                 <div class="o_kanban_image">
-                                    <img t-att-src="kanban_image('places', 'image_512', record.id.value)" class="o_image_128_contain" />
+                                    <img
+                                        t-att-src="kanban_image('places', 'image_512', record.id.value)"
+                                        class="o_image_128_contain" />
                                 </div>
                                 <strong class="o_kanban_record_title">
                                     <field name="name" />
                                 </strong>
 
-                                <div class="o_rating">
-                                    <t t-set="average" t-value="record.average_score or 0" />
-                                    <t t-set="stars" t-value="[0, 1, 2, 3, 4]" />
-                                    <t t-foreach="stars" t-as="i">
-                                        <t t-if="i &lt; average">
-                                            <i class="fa fa-star text-warning"></i>
-                                        </t>
-                                        <t t-else="">
-                                            <i class="fa fa-star-o text-warning"></i>
-                                        </t>
-                                    </t>
+                                <div class="o_kanban_rating">
+                                    <field name="progress_percentage" widget="progressbar"
+                                        options="{'max': 100}" />
+
+                                    <div> (<field name="average_score" /> <span t-esc="'⭐'" />) </div>
                                 </div>
                             </div>
                         </div>
@@ -142,10 +137,10 @@
         <field name="model">places</field>
         <field name="arch" type="xml">
             <graph string="Places Statistics">
-                 <field name="place_category" type="row"/>
-                <field name="id" type="measure"/>
+                <field name="place_category" type="row" />
+                <field name="id" type="measure" />
             </graph>
         </field>
     </record>
-    
+
 </odoo>

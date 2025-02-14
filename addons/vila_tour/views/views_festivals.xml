@@ -82,11 +82,11 @@
                                     <field name="name" />
                                 </strong>
 
-                                <!-- Pinta las estrellas en base al average_score -->
-                                <!-- Pinta las estrellas con el widget rating -->
-                                <div class="o_rating">
-                                    <field name="average_score" widget="rating"
-                                        options="{'max_value': 5}" />
+                                <div class="o_kanban_rating">
+                                    <field name="progress_percentage" widget="progressbar"
+                                        options="{'max': 100}" />
+
+                                    <div> (<field name="average_score" /> <span t-esc="'⭐'" />) </div>
                                 </div>
                             </div>
                         </div>
