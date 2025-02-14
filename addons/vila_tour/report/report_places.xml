@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Botón de imprimir para el modelo Places -->
+    <record id="action_report_places" model="ir.actions.report">
+        <field name="name">Reporte del lugar</field>
+        <field name="model">places</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">vila_tour.report_places</field>
+        <field name="report_file">vila_tour.report_places</field>
+        <field name="print_report_name">'Reporte del lugar - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_places"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Template para el reporte de Places -->
+    <template id="report_places">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page" style="padding: 20px; font-family: Arial, sans-serif;">
+                        <center>
+                            <div class="row" style="max-width: 800px; text-align: left;">
+                                <div class="col-9" style="border-bottom: 2px solid #333; padding-bottom: 10px;">
+                                    <h1 style="color: #2c3e50; font-size: 32px; margin-bottom: 10px;">
+                                        <span t-field="o.name"/>
+                                    </h1>
+                                </div>
+                            </div>
+                            <div class="row" style="max-width: 800px; margin-top: 20px;">
+                                <div class="col-12">
+                                    <ul style="list-style-type: none; padding: 0; font-size: 18px;">
+                                        <li t-if="o.description">
+                                            <strong>Descripción:</strong>
+                                            <span t-field="o.description"/>
+                                        </li>
+                                        <li t-if="o.place_category">
+                                            <strong>Categoría:</strong>
+                                            <span t-field="o.place_category"/>
+                                        </li>
+                                        <li t-if="o.location">
+                                            <strong>Ubicación:</strong>
+                                            <span t-field="o.location"/>
+                                        </li>
+                                        <li t-if="o.average_score">
+                                            <strong>Puntuación media:</strong>
+                                            <span t-field="o.average_score"/> / 5 ⭐
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="row" style="max-width: 800px; margin-top: 20px; text-align: center;">
+                                <div class="col-12">
+                                    <p t-if="o.creator_id" style="font-size: 16px; color: #95a5a6;">
+                                    Creado por: <span t-field="o.creator_id.name"/>
+                                    </p>
+                                </div>
+                            </div>
+                        </center>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>
