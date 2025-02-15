@@ -9,10 +9,10 @@ class Places(models.Model):
     _inherit = ['image.mixin']
 
     name = fields.Char()
-    image = fields.Image(string="Image")
+    # image = fields.Image(string="Image")
     description = fields.Text()
-    image = fields.Image(string="Image")
-    average_score = fields.Integer()
+    # image = fields.Image(string="Image")
+    average_score = fields.Float(string="Average Score", default=0.0, help="Average rating of the place")
     progress_percentage = fields.Integer('Progress Percentage', compute='_compute_progress_percentage')  # Nuevo campo calculado
 
     @api.depends('average_score')

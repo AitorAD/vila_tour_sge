@@ -11,7 +11,7 @@
   <record id="action_open_festivals" model="ir.actions.act_window">
     <field name="name">Festivals</field>
     <field name="res_model">festivals</field>
-    <field name="view_mode">tree,form,kanban,calendar</field>
+    <field name="view_mode">tree,form,kanban,graph,calendar</field>
   </record>
 
   <record id="action_open_places" model="ir.actions.act_window">
@@ -23,7 +23,7 @@
   <record id="action_open_recipes" model="ir.actions.act_window">
     <field name="name">Recipes</field>
     <field name="res_model">recipes</field>
-    <field name="view_mode">tree,form,kanban,graph</field>
+    <field name="view_mode">tree,form,kanban,graph,calendar</field>
   </record>
 
   <record id="action_open_ingredients" model="ir.actions.act_window">
@@ -70,9 +70,7 @@
     <field name="view_mode">tree,form</field>
   </record>
 
-  <!--Acciones
-  graficas-->
-
+  <!--Acciones graficas-->
   <record id="action_open_festivals_graph" model="ir.actions.act_window">
     <field name="name">Festival by Rating</field>
     <field name="res_model">festivals</field>

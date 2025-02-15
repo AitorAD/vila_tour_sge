@@ -29,6 +29,13 @@ class Recipes(models.Model):
             record.progress_percentage = int(record.average_score * 20)  # 5 estrellas = 100% => 1 estrella = 20%
 
     approved = fields.Boolean(string='Approved', default=False)
+    color = fields.Integer(compute="_compute_color", store=True)
+
+    @api.depends("approved")
+    def _compute_color(self):
+        for record in self:
+            record.color = 10 if record.approved else 1  # 10 = Verde, 2 = Rojo
+
     is_recent = fields.Boolean(
         string="Is Recent?",
         compute="_compute_is_recent",

@@ -7,9 +7,13 @@
             <form string="Formulario de Lugares">
                 <sheet>
                     <!-- Imagen del lugar con opciones de previsualización -->
-                    <field name="image_1920" widget="image" class="oe_avatar"
+                    <!-- <field name="image_1920" widget="image" class="oe_avatar"
                         options="{'preview_image': 'image_256', 'size': [256, 256]}"
-                        groups="vila_tour.group_vilatour_editor" readonly="1" />
+                        groups="vila_tour.group_vilatour_editor" readonly="1" /> -->
+
+
+                    <field name="image_1920" widget="image" class="oe_avatar"
+                        options="{'preview_image': 'image_128', 'size': [256, 256]}" />
 
                     <div class="oe_title">
                         <div class="o_row" style="display: flex; align-items: center;">
@@ -55,16 +59,13 @@
         <field name="name">Vista árbol de lugares</field>
         <field name="model">places</field>
         <field name="arch" type="xml">
-            <tree string="Lista de Lugares" decoration-muted="average_score &lt; 3"
-                decoration-success="average_score &gt;= 7">
-
-                <!-- Imagen del lugar -->
-                <field name="image" widget="image" options="{'size': [32, 32]}" />
+            <tree string="Lista de Lugares" decoration-danger="average_score &lt; 3"
+                decoration-success="average_score &gt; 3">
 
                 <!-- Nombre del lugar como badge con color según calificación -->
                 <field name="name" widget="badge"
                     decoration-danger="average_score &lt; 3"
-                    decoration-success="average_score &gt;= 7" />
+                    decoration-success="average_score &gt; 3" />
 
                 <!-- Categoría del lugar con etiquetas visuales -->
                 <field name="place_category" widget="selection" string="Categoría" />
@@ -82,7 +83,7 @@
                 <field name="last_modification_date" string="Última Modificación" widget="datetime" />
 
                 <!-- Creador del lugar con foto de avatar -->
-                 <field name="creator_id" widget="many2one_avatar_user" options="{'no_open': True}"
+                <field name="creator_id" widget="many2one_avatar_user" options="{'no_open': True}"
                     string="Creador">
                 </field>
 
@@ -157,6 +158,7 @@
         </field>
     </record>
 
+    <!-- Graph places -->
     <record id="view_places_graph" model="ir.ui.view">
         <field name="name">places.graph.view</field>
         <field name="model">places</field>

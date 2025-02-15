@@ -11,7 +11,7 @@ class Festivals(models.Model):
     id = fields.Integer(string="ID", required=True, readonly=True)
     name = fields.Char(string="Name", required=True, placeholder="Festival Name", help="Enter the festival name")
     description = fields.Text(string="Description", help="Provide details about the festival")
-    image = fields.Image(string="Image", max_width=1024, max_height=1024, help="Upload an image for the festival")
+    # image = fields.Image(string="Image", max_width=1024, max_height=1024, help="Upload an image for the festival")
     creation_date = fields.Datetime(
         string="Creation Date",
         default=lambda self: fields.Datetime.now(),
