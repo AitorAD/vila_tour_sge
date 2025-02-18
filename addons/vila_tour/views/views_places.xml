@@ -7,9 +7,13 @@
             <form string="Formulario de Lugares">
                 <sheet>
                     <!-- Imagen del lugar con opciones de previsualización -->
-                    <field name="image_1920" widget="image" class="oe_avatar"
+                    <!-- <field name="image_1920" widget="image" class="oe_avatar"
                         options="{'preview_image': 'image_256', 'size': [256, 256]}"
-                        groups="vila_tour.group_vilatour_editor" readonly="1" />
+                        groups="vila_tour.group_vilatour_editor" readonly="1" /> -->
+
+
+                    <field name="image_1920" widget="image" class="oe_avatar"
+                        options="{'preview_image': 'image_128', 'size': [256, 256]}" />
 
                     <div class="oe_title">
                         <div class="o_row" style="display: flex; align-items: center;">
@@ -33,7 +37,7 @@
 
                     <group string="Detalles">
                         <field name="place_category" />
-                        <field name="creator_id" />
+                        <field name="creator_id" readonly="1" />
                     </group>
 
                     <group string="Ubicación">
@@ -50,21 +54,43 @@
     </record>
 
     <!-- Vista tree de places -->
+    <!-- Tree View for Places with Visual Enhancements -->
     <record id="view_places_tree" model="ir.ui.view">
-        <field name="name">places.tree</field>
+        <field name="name">Vista árbol de lugares</field>
         <field name="model">places</field>
         <field name="arch" type="xml">
-            <tree string="Place List">
-                <field name="image_1920" widget="image" options="{'size': [32, 32]}" />
-                <field name="name" />
-                <field name="location" />
-                <field name="place_category" />
-                <field name="average_score" />
-                <field name="creation_date" />
-                <field name="last_modification_date" />
+            <tree string="Lista de Lugares" decoration-danger="average_score &lt; 3"
+                decoration-success="average_score &gt; 3">
+
+                <!-- Nombre del lugar como badge con color según calificación -->
+                <field name="name" widget="badge"
+                    decoration-danger="average_score &lt; 3"
+                    decoration-success="average_score &gt; 3" />
+
+                <!-- Categoría del lugar con etiquetas visuales -->
+                <field name="place_category" widget="selection" string="Categoría" />
+
+                <!-- Ubicación -->
+                <field name="location" string="Ubicación" />
+
+                <!-- Calificación promedio como rating -->
+                <field name="average_score" widget="rating" string="Calificación Promedio" />
+
+                <!-- Fecha de creación con formato datetime -->
+                <field name="creation_date" string="Fecha de Creación" widget="datetime" />
+
+                <!-- Última modificación con formato datetime -->
+                <field name="last_modification_date" string="Última Modificación" widget="datetime" />
+
+                <!-- Creador del lugar con foto de avatar -->
+                <field name="creator_id" widget="many2one_avatar_user" options="{'no_open': True}"
+                    string="Creador">
+                </field>
+
             </tree>
         </field>
     </record>
+
 
     <!-- busquedas places -->
     <record id="view_places_search_view" model="ir.ui.view">
@@ -132,11 +158,12 @@
         </field>
     </record>
 
+    <!-- Graph places -->
     <record id="view_places_graph" model="ir.ui.view">
         <field name="name">places.graph.view</field>
         <field name="model">places</field>
         <field name="arch" type="xml">
-            <graph string="Places Statistics">
+            <graph string="Places by Category">
                 <field name="place_category" type="row" />
                 <field name="id" type="measure" />
             </graph>

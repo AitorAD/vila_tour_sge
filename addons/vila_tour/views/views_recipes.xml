@@ -72,8 +72,13 @@
                 decoration-success="approved == True">
                 <field name="name" widget="badge" decoration-danger="approved == False"
                     decoration-success="approved == True" />
-                <field name="average_score" />
+                <field name="average_score" widget="rating" string="Calificación Promedio" />
                 <field name="approved" />
+                <!-- Mostrar nombre y foto de avatar del creador en el mismo campo -->
+                <field name="creator_id" widget="many2one_avatar_user" options="{'no_open': True}"
+                    string="Creador">
+                </field>
+                <field name="ingredients" widget="many2many_tags" options="{'no_create': True}" />
             </tree>
         </field>
     </record>
@@ -159,7 +164,7 @@
                     domain="[('is_recent', '=', 'True')]" />
 
                 <filter string="Más de 5 ingredientes" name="many_ingredients"
-                    domain="[('ingredients', '>', 5)]" />
+                    domain="[('ingredients', '&gt;=', 5)]" />
 
                 <filter string="Recetas sin descripción" name="no_description"
                     domain="[('description', '=', False)]" />
@@ -172,13 +177,13 @@
         </field>
     </record>
 
-    <!-- Calendar recipes -->
     <!-- falta la restricción de fechas para mostrar solo las recetas de este año -->
+    <!-- Calendar recipes -->
     <record id="view_recipes_calendar" model="ir.ui.view">
         <field name="name">Vista Calendar de recetas</field>
         <field name="model">recipes</field>
         <field name="arch" type="xml">
-            <calendar string="Calendario de Recetas" date_start="creation_date" color="approved"
+            <calendar string="Calendario de Recetas" date_start="creation_date" color="color"
                 quick_add="False" mode="month" event_open_popup="1">
                 <field name="name" />
                 <field name="creation_date" />

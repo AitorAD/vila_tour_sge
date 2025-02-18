@@ -24,6 +24,10 @@
 
     # always loaded
     'data': [
+        # Security
+        'security/security.xml',
+        'security/ir.model.access.csv',
+        
         # Views
         'views/views.xml',
         'views/views_ingredient.xml',
@@ -36,10 +40,6 @@
         'report/report_recipes.xml',
         'report/report_festivals.xml',
         'report/report_places.xml',
-
-        # Security
-        'security/security.xml',
-        'security/ir.model.access.csv',
     ],
 
     'assets': {
