@@ -15,17 +15,20 @@
     <record id="group_vilatour_user" model="res.groups">
         <field name="name">Usuario: Solo puede ver sus propias recetas</field>
         <field name="category_id" ref="module_category_vilatour_vilatour" />
+        <field name="implied_ids" eval="[]" />  <!-- Evita herencias ocultas -->
     </record>
 
     <!-- Grupo para editores -->
     <record id="group_vilatour_editor" model="res.groups">
         <field name="name">Editor: No permite gestionar los usuarios</field>
         <field name="category_id" ref="module_category_vilatour_vilatour" />
+        <field name="implied_ids" eval="[]" />  <!-- Evita herencias ocultas -->
     </record>
 
     <!-- Grupo para administradores -->
     <record id="group_vilatour_admin" model="res.groups">
         <field name="name">Administrador</field>
         <field name="category_id" ref="module_category_vilatour_vilatour" />
+        <field name="implied_ids" eval="[]" />  <!-- Evita herencias ocultas -->
     </record>
 </odoo>

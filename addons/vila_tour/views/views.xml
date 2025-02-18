@@ -11,19 +11,19 @@
   <record id="action_open_festivals" model="ir.actions.act_window">
     <field name="name">Festivals</field>
     <field name="res_model">festivals</field>
-    <field name="view_mode">tree,form</field>
+    <field name="view_mode">tree,form,kanban,graph,calendar</field>
   </record>
 
   <record id="action_open_places" model="ir.actions.act_window">
     <field name="name">Places</field>
     <field name="res_model">places</field>
-    <field name="view_mode">tree,form</field>
+    <field name="view_mode">tree,form,kanban,graph</field>
   </record>
 
   <record id="action_open_recipes" model="ir.actions.act_window">
     <field name="name">Recipes</field>
     <field name="res_model">recipes</field>
-    <field name="view_mode">tree,form</field>
+    <field name="view_mode">tree,form,kanban,graph,calendar</field>
   </record>
 
   <record id="action_open_ingredients" model="ir.actions.act_window">
@@ -42,12 +42,25 @@
     <field name="name">Users</field>
     <field name="res_model">users</field>
     <field name="view_mode">tree,form</field>
-    <field name="groups_id" eval="[(6, 0, [ref('vila_tour.group_vilatour_admin')])]"/>
+    <field name="groups_id" eval="[(6, 0, [ref('vila_tour.group_vilatour_admin')])]" />
+
   </record>
 
-  <record id="action_open_reports" model="ir.actions.act_window">
-    <field name="name">Reports</field>
-    <field name="res_model">reports</field>
+    <record id="action_open_reports_festivals" model="ir.actions.act_window">
+    <field name="name">Festival Reports</field>
+    <field name="res_model">festivals</field>
+    <field name="view_mode">tree,form</field>
+  </record>
+
+  <record id="action_open_reports_places" model="ir.actions.act_window">
+    <field name="name">Place Reports</field>
+    <field name="res_model">places</field>
+    <field name="view_mode">tree,form</field>
+  </record>
+
+  <record id="action_open_reports_recipes" model="ir.actions.act_window">
+    <field name="name">Recipe Reports</field>
+    <field name="res_model">recipes</field>
     <field name="view_mode">tree,form</field>
   </record>
 
@@ -57,23 +70,49 @@
     <field name="view_mode">tree,form</field>
   </record>
 
+  <!--Acciones graficas-->
+  <record id="action_open_festivals_graph" model="ir.actions.act_window">
+    <field name="name">Festival by Rating</field>
+    <field name="res_model">festivals</field>
+    <field name="view_mode">graph</field>
+  </record>
+
+  <record id="action_open_places_graph" model="ir.actions.act_window">
+    <field name="name">Places by Category</field>
+    <field name="res_model">places</field>
+    <field name="view_mode">graph</field>
+  </record>
+
+  <record id="action_open_recipes_graph" model="ir.actions.act_window">
+    <field name="name">Ingredients by Recipes</field>
+    <field name="res_model">recipes</field>
+    <field name="view_mode">graph</field>
+  </record>
+
+  <record id="action_open_ingredients_graph" model="ir.actions.act_window">
+    <field name="name">Ingredients by Category</field>
+    <field name="res_model">ingredients</field>
+    <field name="view_mode">graph</field>
+  </record>
+
+  <!--Menus-->
+
   <menuitem id="main_menu" name="VilaTour" sequence="1" />
 
+  <menuitem id="horizontal_menu3" name="Recipes" parent="main_menu" sequence="2" />
   <menuitem id="horizontal_menu1" name="Festivals" parent="main_menu" />
   <menuitem id="horizontal_menu2" name="Places" parent="main_menu" />
-  <menuitem id="horizontal_menu3" name="Recipes" parent="main_menu" sequence="2"/>
-  <menuitem id="horizontal_menu4" name="Users" parent="main_menu"/>
+  <menuitem id="horizontal_menu4" name="Users" parent="main_menu" />
+
+  <menuitem id="horizontal_menu5" name="Statistics" parent="main_menu"/>
+
 
   <!-- Submenús de festivales -->
-
   <menuitem id="vertical_menu_festivals1" name="Festivals" parent="horizontal_menu1"
     action="action_open_festivals" />
   <menuitem id="vertical_menu_festivals2" name="Reviews" parent="horizontal_menu1"
     action="action_open_reviews" />
   <menuitem id="vertical_menu_festivals3" name="Details" parent="horizontal_menu1" />
-
-  <menuitem id="vertical_menu_report_festivals" name="Report" parent="vertical_menu_festivals3"
-    action="action_open_reports" />
 
   <!-- Submenús de lugares -->
   <menuitem id="vertical_menu_places1" name="Places" parent="horizontal_menu2"
@@ -81,9 +120,6 @@
   <menuitem id="vertical_menu_places2" name="Reviews" parent="horizontal_menu2"
     action="action_open_reviews" />
   <menuitem id="vertical_menu_places3" name="Details" parent="horizontal_menu2" />
-
-  <menuitem id="vertical_menu_report_places" name="Report" parent="vertical_menu_places3"
-    action="action_open_reports" />
 
   <!-- Submenús de recetas -->
   <menuitem id="vertical_menu_recipes1" name="Recipes" parent="horizontal_menu3"
@@ -98,9 +134,6 @@
     action="action_open_categories" sequence="3" />
   <menuitem id="vertical_menu_recipes4" name="Details" parent="horizontal_menu3" sequence="4" />
 
-  <menuitem id="vertical_menu_report_recipes" name="Report" parent="vertical_menu_recipes4"
-    action="action_open_reports" />
-
   <!-- Submenús de usuarios -->
   <menuitem id="vertical_menu_users1" name="Users" parent="horizontal_menu4"
     action="action_open_users" />
@@ -108,7 +141,17 @@
     action="action_open_reviews" />
   <menuitem id="vertical_menu_users3" name="Details" parent="horizontal_menu4" />
 
-  <menuitem id="vertical_menu_report_users" name="Report" parent="vertical_menu_users3"
-    action="action_open_reports" />
+  <!-- Submenús de estadísticas -->
+  <menuitem id="vertical_menu_statistics_festivals" name="Festival by Rating"
+    parent="horizontal_menu5" action="action_open_festivals_graph" />
+
+  <menuitem id="vertical_menu_statistics_places" name="Places by Category"
+    parent="horizontal_menu5" action="action_open_places_graph" />
+
+  <menuitem id="vertical_menu_statistics_recipes" name="Ingredients by Recipes"
+    parent="horizontal_menu5" action="action_open_recipes_graph" />
+
+  <menuitem id="vertical_menu_statistics_ingredients" name="Categories by Ingredients"
+    parent="horizontal_menu5" action="action_open_ingredients_graph" />
 
 </odoo>
