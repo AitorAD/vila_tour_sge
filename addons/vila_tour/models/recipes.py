@@ -9,6 +9,7 @@ class Recipes(models.Model):
 
     name = fields.Char(string="Name", required=True, placeholder="Recipe Name", help="Enter the recipe name")
     description = fields.Text(string="Description", help="Provide a detailed description of the recipe")
+    image = fields.Image(string="Image", max_width=1024, max_height=1024, help="Upload an image for the recipe")
     creation_date = fields.Datetime(
         string="Creation Date",
         default=lambda self: fields.Datetime.now(),

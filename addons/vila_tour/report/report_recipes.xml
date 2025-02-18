@@ -17,70 +17,69 @@
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
                 <t t-call="web.external_layout">
-                    <div class="page" style="padding: 20px; font-family: Arial, sans-serif;">
-                        <center>
-                            <div class="row" style="max-width: 800px; text-align: left;">
-                                <div class="col-12" style="border-bottom: 2px solid #333; padding-bottom: 10px;">
-                                    <h1 style="color: #2c3e50; font-size: 32px; margin-bottom: 10px;">
-                                        <span t-field="o.name"/>
-                                    </h1>
-                                </div>
+                    <div class="page" style="padding: 20px; font-family: Arial, sans-serif; text-align: left;">
+                        <div class="row" style="max-width: 800px; text-align: left;">
+                            <div class="col-12" style="border-bottom: 2px solid #333; padding-bottom: 10px;">
+                                <h1 style="color: #2c3e50; font-size: 32px; margin-bottom: 10px;">
+                                    <span t-field="o.name"/>
+                                </h1>
                             </div>
-                            <div class="row" style="max-width: 800px; margin-top: 20px;">
-                                <div class="col-12">
-                                    <ul style="list-style-type: none; padding: 0; font-size: 18px;">
-                                        <li t-if="o.creation_date">
-                                            <strong>Fecha de creación:</strong>
-                                            <span t-field="o.creation_date"/>
-                                        </li>
-                                        <li t-if="o.last_modification_date">
-                                            <strong>Última modificación:</strong>
-                                            <span t-field="o.last_modification_date"/>
-                                        </li>
-                                        <li t-if="o.average_score">
-                                            <strong>Puntuación media:</strong>
-                                            <span t-field="o.average_score"/> / 5 ⭐
-                                        </li>
-                                        <li t-if="o.approved">
-                                            <strong>Estado:</strong> ✅ Approved
-                                        </li>
-                                        <li t-if="not o.approved">
-                                            <strong>Estado:</strong> ❌ Not Approved
-                                        </li>
-                                        <li t-if="o.is_recent">
-                                            <strong>Recent Recipe:</strong> ✅ Yes
-                                        </li>
-                                    </ul>
-                                </div>
+                        </div>
+                        <div class="row" style="max-width: 800px; margin-top: 20px;">
+                            <div class="col-12">
+                                <img t-att-src="'data:image/png;base64,' + (o.image.decode('utf-8') if o.image else '')" style="max-width:200px;"/>
+                                <ul style="list-style-type: none; padding: 0; font-size: 18px;">
+                                    <li t-if="o.creation_date">
+                                        <strong>Fecha de creación:</strong>
+                                        <span t-field="o.creation_date"/>
+                                    </li>
+                                    <li t-if="o.last_modification_date">
+                                        <strong>Última modificación:</strong>
+                                        <span t-field="o.last_modification_date"/>
+                                    </li>
+                                    <li t-if="o.average_score">
+                                        <strong>Puntuación media:</strong>
+                                        <span t-field="o.average_score"/> / 5 ⭐
+                                    </li>
+                                    <li t-if="o.approved">
+                                        <strong>Estado:</strong> ✅ Approved
+                                    </li>
+                                    <li t-if="not o.approved">
+                                        <strong>Estado:</strong> ❌ Not Approved
+                                    </li>
+                                    <li t-if="o.is_recent">
+                                        <strong>Recent Recipe:</strong> ✅ Yes
+                                    </li>
+                                </ul>
                             </div>
-                            <div class="row" style="max-width: 800px; margin-top: 20px;">
-                                <div class="col-12">
-                                    <h3 style="color: #2c3e50;">Ingredients:</h3>
-                                    <ul t-if="o.ingredients" style="list-style-type: square; font-size: 18px;">
-                                        <t t-foreach="o.ingredients" t-as="ing">
-                                            <li>
-                                                <span t-field="ing.name"/>
-                                            </li>
-                                        </t>
-                                    </ul>
-                                </div>
+                        </div>
+                        <div class="row" style="max-width: 800px; margin-top: 20px;">
+                            <div class="col-12">
+                                <h3 style="color: #2c3e50;">Ingredients:</h3>
+                                <ul t-if="o.ingredients" style="list-style-type: square; font-size: 18px;">
+                                    <t t-foreach="o.ingredients" t-as="ing">
+                                        <li>
+                                            <span t-field="ing.name"/>
+                                        </li>
+                                    </t>
+                                </ul>
                             </div>
-                            <div class="row" style="max-width: 800px; margin-top: 20px;">
-                                <div class="col-12">
-                                    <p t-if="o.description" style="font-size: 18px; color: #7f8c8d;">
-                                        <strong>Descripción:</strong>
-                                        <span t-field="o.description"/>
-                                    </p>
-                                </div>
+                        </div>
+                        <div class="row" style="max-width: 800px; margin-top: 20px;">
+                            <div class="col-12">
+                                <p t-if="o.description" style="font-size: 18px; color: #7f8c8d;">
+                                    <strong>Descripción:</strong>
+                                    <span t-field="o.description"/>
+                                </p>
                             </div>
-                            <div class="row" style="max-width: 800px; margin-top: 20px; text-align: center;">
-                                <div class="col-12">
-                                    <p t-if="o.creator_id" style="font-size: 16px; color: #95a5a6;">
-                                    Creada por: <span t-field="o.creator_id.name"/>
-                                    </p>
-                                </div>
+                        </div>
+                        <div class="row" style="max-width: 800px; margin-top: 20px; text-align: left;">
+                            <div class="col-12">
+                                <p t-if="o.creator_id" style="font-size: 16px; color: #95a5a6;">
+                                Creada por: <span t-field="o.creator_id.name"/>
+                                </p>
                             </div>
-                        </center>
+                        </div>
                     </div>
                 </t>
             </t>

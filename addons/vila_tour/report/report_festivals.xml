@@ -28,6 +28,7 @@
                             </div>
                             <div class="row" style="max-width: 800px; margin-top: 20px;">
                                 <div class="col-12">
+                                    <img t-att-src="'data:image/png;base64,' + (o.image.decode('utf-8') if o.image else '')" style="max-width:200px;"/>
                                     <ul style="list-style-type: none; padding: 0; font-size: 18px;">
                                         <li t-if="o.creation_date">
                                             <strong>Fecha de creación:</strong>
