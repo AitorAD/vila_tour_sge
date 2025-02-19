@@ -11,7 +11,7 @@ class Festivals(models.Model):
     id = fields.Integer(string="ID", required=True, readonly=True)
     name = fields.Char(string="Name", required=True, placeholder="Festival Name", help="Enter the festival name")
     description = fields.Text(string="Description", help="Provide details about the festival")
-    image = fields.Image(string="Image", max_width=1024, max_height=1024, help="Upload an image for the festival")
+    # image = fields.Image(string="Image", max_width=1024, max_height=1024, help="Upload an image for the festival")
     creation_date = fields.Datetime(
         string="Creation Date",
         default=lambda self: fields.Datetime.now(),
@@ -23,18 +23,28 @@ class Festivals(models.Model):
         readonly=True
     )
     average_score = fields.Float(string="Average Score", default=0.0, help="Average rating of the festival")
+    progress_percentage = fields.Integer('Progress Percentage', compute='_compute_progress_percentage')  # Nuevo campo calculado
+
+    @api.depends('average_score')
+    def _compute_progress_percentage(self):
+        for record in self:
+            # Calcula el porcentaje en base al average_score
+            record.progress_percentage = int(record.average_score * 20)  # 5 estrellas = 100% => 1 estrella = 20%
+
     start_date = fields.Date(string="Start Date", required=True)
     end_date = fields.Date(string="End Date", required=True)
     latitude = fields.Float(string="Latitude", help="Latitude of the festival location")
     longitude = fields.Float(string="Longitude", help="Longitude of the festival location")
-
+    
     creator_id = fields.Many2one(
-        comodel_name='users',
+        comodel_name='res.users',
         string='Creator',
-        required=True,
         ondelete='cascade',
-        help="The user who created this festival"
+        default=lambda self: self.env.uid,
+        required=True,
+        help="The user who created this recipe"
     )
+
 
     @api.constrains('start_date', 'end_date')
     def _check_dates(self):
@@ -45,6 +55,8 @@ class Festivals(models.Model):
     @api.model
     def create(self, vals):
         vals['last_modification_date'] = datetime.now()
+        vals['creator_id'] = self.env.uid
+ 
         return super(Festivals, self).create(vals)
 
     def write(self, vals):

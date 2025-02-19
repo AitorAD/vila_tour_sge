@@ -9,7 +9,7 @@ class Recipes(models.Model):
 
     name = fields.Char(string="Name", required=True, placeholder="Recipe Name", help="Enter the recipe name")
     description = fields.Text(string="Description", help="Provide a detailed description of the recipe")
-    image = fields.Image(string="Image", max_width=1024, max_height=1024, help="Upload an image of the recipe")
+    image = fields.Image(string="Image", max_width=1024, max_height=1024, help="Upload an image for the recipe")
     creation_date = fields.Datetime(
         string="Creation Date",
         default=lambda self: fields.Datetime.now(),
@@ -21,10 +21,26 @@ class Recipes(models.Model):
         readonly=True
     )
     average_score = fields.Float(string="Average Score", default=0.0, help="Average rating of the recipe")
+    progress_percentage = fields.Integer('Progress Percentage', compute='_compute_progress_percentage')  # Nuevo campo calculado
+
+    @api.depends('average_score')
+    def _compute_progress_percentage(self):
+        for record in self:
+            # Calcula el porcentaje en base al average_score
+            record.progress_percentage = int(record.average_score * 20)  # 5 estrellas = 100% => 1 estrella = 20%
+
     approved = fields.Boolean(string='Approved', default=False)
+    color = fields.Integer(compute="_compute_color", store=True)
+
+    @api.depends("approved")
+    def _compute_color(self):
+        for record in self:
+            record.color = 10 if record.approved else 1  # 10 = Verde, 2 = Rojo
+
     is_recent = fields.Boolean(
         string="Is Recent?",
         compute="_compute_is_recent",
+        store=True,  # Hace que el campo sea almacenado en la base de datos
         help="Computed field indicating if the recipe was recently created."
     )
     ingredients = fields.Many2many(
@@ -37,6 +53,7 @@ class Recipes(models.Model):
         string='Creator',
         ondelete='cascade',
         default=lambda self: self.env.uid,
+        required=True,
         help="The user who created this recipe"
     )
 
@@ -50,8 +67,8 @@ class Recipes(models.Model):
         if self.average_score < 0 or self.average_score > 5:
             return {
                 'warning': {
-                    'title': _("Invalid Average Score"),
-                    'message': _("The average score must be between 0 and 5."),
+                    'title': ("Invalid Average Score"),
+                    'message': ("The average score must be between 0 and 5."),
                 }
             }
 
